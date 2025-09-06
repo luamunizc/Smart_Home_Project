@@ -9,8 +9,9 @@ class DoorState(Enum):
     LOCKED = auto()
 
 class Door(Device):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, device_name: str):
+        super().__init__(device_type="door")
+        self.name = device_name
         self.machine = Machine(model=self, states=DoorState, initial=DoorState.CLOSED)
 
         self.machine.add_transition('open', DoorState.CLOSED, DoorState.OPENED)
