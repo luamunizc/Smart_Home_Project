@@ -5,6 +5,8 @@ from devices import Device
 
 console = Console()
 
+# Me confundi e traduzi tomada para switch em vez de outlet, mas não vai fazer diferença no uso
+
 class SwitchState(Enum):
     OFF = 0
     ON = 1
@@ -13,24 +15,22 @@ class SwitchState(Enum):
 class Switch(Device):
 
     def on_enter_ON(self):
-        console.print(f"Interruptor {self.name} ligado", style="bold green")
+        console.print(f"Tomada {self.name} ligada", style="bold green")
 
     def on_enter_OFF(self):
-        console.print(f"Interruptor {self.name} desligado", style="bold bright_red")
+        console.print(f"Tomada {self.name} desligada", style="bold bright_red")
 
     def on_enter_DISCONNECTED(self):
-        console.print(f"Interruptor {self.name} desconectado", style="bold color(166)")
+        console.print(f"Tomada {self.name} desconectada", style="bold color(166)")
 
     def saved_state(self):
         self.before_disconnection = self.state
 
     def restore_state(self):
         target_state = self.before_disconnection
-        console.print(f"Interruptor {self.name} reconectado", style="bold color(122)")
+        console.print(f"Tomada {self.name} reconectada", style="bold color(122)")
         if target_state == SwitchState.ON:
             self.on()
-        else:
-            ...
 
     def is_DISCONNECTED(self):
         return self.state == SwitchState.DISCONNECTED
