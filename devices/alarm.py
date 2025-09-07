@@ -36,7 +36,7 @@ class Alarm(Device):
         t.start()
 
     def __init__(self, device_name: str):
-        super().__init__(device_type="alarm")
+        super().__init__(device_name=device_name, device_type="alarm")
         self.name = device_name
         self.machine = Machine(model=self, states=AlarmState, initial=AlarmState.DEACTIVATED)
 

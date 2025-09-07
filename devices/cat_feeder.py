@@ -48,7 +48,7 @@ class CatFeeder(Device):
             self.empty()
 
     def __init__(self, device_name: str):
-        super().__init__(device_type="feeder")
+        super().__init__(device_name=device_name, device_type="feeder")
         self.name = device_name
         self.level = 0
         self.machine = Machine(model=self, states=CatFeederState, initial=CatFeederState.EMPTY)

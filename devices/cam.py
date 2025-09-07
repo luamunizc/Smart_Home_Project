@@ -49,7 +49,7 @@ class Cam(Device):
             self.start_streaming()
 
     def __init__(self, device_name: str):
-        super().__init__(device_type="cam")
+        super().__init__(device_name=device_name, device_type="cam")
         self.name = device_name
         self.machine = Machine(model=self, states=CamState, initial=CamState.DEACTIVATED)
 

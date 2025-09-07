@@ -33,7 +33,7 @@ class Door(Device):
         print(f'Porta {self.name} reconectada')
 
     def __init__(self, device_name: str):
-        super().__init__(device_type="door")
+        super().__init__(device_name=device_name, device_type="door")
         self.name = device_name
         self.machine = Machine(model=self, states=DoorState, initial=DoorState.CLOSED)
 

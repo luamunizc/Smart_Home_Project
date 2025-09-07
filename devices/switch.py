@@ -36,8 +36,7 @@ class Switch(Device):
         return self.state == SwitchState.DISCONNECTED
 
     def __init__(self, device_name: str):
-        super().__init__(device_type='switch')
-        self.name = device_name
+        super().__init__(device_name=device_name, device_type='switch')
         self.before_disconnection = SwitchState.OFF
         self.machine = Machine(model=self, states=SwitchState, initial=SwitchState.OFF)
         self.machine.add_transition('on', SwitchState.OFF, SwitchState.ON, unless='is_DISCONNECTED')
