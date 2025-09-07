@@ -1,7 +1,6 @@
 from enum import Enum, auto
-from rich.console import Console
 from transitions import Machine
-from devices import Device
+from devices import Device, console
 
 
 class LampState(Enum):
@@ -45,7 +44,6 @@ class Lamp(Device):
                 cor = "pale_turquoise1"
             elif new_colour == Colour.NEUTRA:
                 cor = "grey93"
-            console = Console()
             console.print(f"Cor da lâmpada '{self.name}' alterada para {new_colour.name}", style=cor)
         else:
             print("Erro: Cor inválida.")
@@ -62,8 +60,8 @@ class Lamp(Device):
 
     def __init__(self, device_name: str):
         super().__init__(device_name=device_name, device_type="lamp")
-        self.colour = Colour.NEUTRA
-        self.brightness = 100
+        self._colour = Colour.NEUTRA
+        self._brightness = 100
         self.before_disconnection = {
             "state": LampState.OFF,
             "colour": self.colour,
