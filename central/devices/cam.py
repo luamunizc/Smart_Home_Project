@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from transitions import Machine
-from devices import Device
+from central.devices.devices import Device, console
 
 
 class CamState(Enum):
@@ -49,8 +49,7 @@ class Cam(Device):
             self.start_streaming()
 
     def __init__(self, device_name: str):
-        super().__init__(device_name=device_name, device_type="cam")
-        self.name = device_name
+        super().__init__(device_name=device_name, device_type='cam')
         self.machine = Machine(model=self, states=CamState, initial=CamState.DEACTIVATED)
 
         self.machine.add_transition('deactivate', '*', CamState.DEACTIVATED, unless='is_DISCONNECTED')

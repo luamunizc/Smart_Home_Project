@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from transitions import Machine
-from devices import Device, console
+from central.devices.devices import Device, console
 
 
 class LampState(Enum):
@@ -64,8 +64,8 @@ class Lamp(Device):
         self._brightness = 100
         self.before_disconnection = {
             "state": LampState.OFF,
-            "colour": self.colour,
-            "brightness": self.brightness
+            "colour": self._colour,
+            "brightness": self._brightness
         }
         self.machine = Machine(model=self, states=LampState, initial=LampState.OFF)
         self.machine.add_transition('on', LampState.OFF, LampState.ON, unless='is_DISCONNECTED')
