@@ -1,7 +1,15 @@
-# TODO: check lamp, cat_feeder, switch, alarm and cam for transition errors
+# from central import SmartHomeHub
+# import subprocess
+#
+#
+# if __name__ == '__main__':
+#     casa = SmartHomeHub()
+#     casa.add_device('door', 'porta1')
+#     casa.add_device('cam', 'camera1')
+#
+#     print(casa.devices)
 
+c = dict()
 
-from random import randrange
-
-for _ in range(100):
-    print(randrange(4, 6))
+c['dd'] = 'p'
+print(c)

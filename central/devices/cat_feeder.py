@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from transitions import Machine
 from threading import Timer
-from devices import Device, console
+from central.devices.devices import Device, console
 from random import randrange
 from time import sleep
 

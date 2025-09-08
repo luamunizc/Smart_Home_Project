@@ -1,6 +1,6 @@
 from enum import Enum
 from transitions import Machine
-from devices import Device, console
+from central.devices.devices import Device, console
 import time
 
 

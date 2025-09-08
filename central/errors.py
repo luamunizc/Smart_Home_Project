@@ -1,13 +1,14 @@
-class SmartHomeError(Exception):
-    # Base para exceções
+class HomeError(Exception):
     pass
 
-class InvalidTransitionError(SmartHomeError):
-    # falha de transição de estado
-    pass
+class InvalidTransition(HomeError):
+    ...
 
-class DeviceNotFoundError(SmartHomeError):
-    pass
+class DeviceNotFound(HomeError):
+    ...
 
-class InvalidConfigError(SmartHomeError):
-    pass
+class DeviceTypeInvalid(HomeError):
+    ...
+
+class InvalidConfig(HomeError):
+    ...
