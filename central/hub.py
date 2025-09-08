@@ -13,24 +13,29 @@ class SmartHomeHub:
         self._observers = []
 
     def add_device(self, device_type, device_name=''):
+        """
+        Função para adicionar novos dispositivos ao SmartHomeHub a partir do tipo e nome
+        Caso o nome seja uma string vazia, um nome padrao, na forma 'new_{type}' será criado
+        Caso o nome dado já exista, será adicionado msm assim, porém renomeado adequadamente
+        """
 
+        # Tratando os nomes dos dispositivos, caso necessário
         if device_type not in self.devices.keys():
             self.devices[device_type] = dict()
 
         if device_name == '':
+            device_name = f"new_{device_type}"
+
+        if device_name in self.devices[device_type].keys():
+
             number = 1
-            device_name = f"new_{device_type}_{number}"
-            while device_name in self.devices[device_type].keys():
+            new_name = f"{device_name}_{number}"
+            while new_name in self.devices[device_type].keys():
                 number += 1
-                device_name = f"new_{device_type}_{number}"
+                new_name = f"{device_name}_{number}"
+            device_name = new_name
 
-        # todo: consertar esses nomes
-
-        number = 1
-        while device_name in self.devices[device_type].keys():
-            number += 1
-            device_name = f"{device_name}_{number}"
-
+        # adicionando os dispositivos nos dicionários dos seus respectivos tipos
         if device_type == 'alarm':
             new_device = Alarm(device_name)
             self.devices[device_type][new_device.name] = new_device
@@ -78,7 +83,7 @@ class SmartHomeHub:
     def remove_all_by_type(self, device_type):
         self.devices.pop(device_type)
 
-    def get_especific_device(self, device_type, device_name):
+    def get_specific_device(self, device_type, device_name):
         return self.devices[device_type][device_name]
 
 
@@ -103,7 +108,7 @@ if __name__ == '__main__':
     casa.add_device('switch')
     casa.add_device('switch')
 
-    print(casa.get_especific_device('door', 'porta1'))
+    print(casa.get_specific_device('door', 'porta1'))
     casa.remove_all_by_type('cam')
 
     casa.print_list_all_devices()
