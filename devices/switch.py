@@ -1,10 +1,8 @@
-from rich.console import Console
 from enum import Enum
 from transitions import Machine
-from devices import Device
+from devices import Device, console
 import time
 
-console = Console()
 
 # Me confundi e traduzi tomada para switch em vez de outlet, mas não vai fazer diferença no uso
 
