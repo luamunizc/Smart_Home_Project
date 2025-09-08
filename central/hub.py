@@ -24,12 +24,12 @@ class SmartHomeHub:
                 number += 1
                 device_name = f"new_{device_type}_{number}"
 
-        if device_name in self.devices[device_type].keys():
-            number = 1
+        # todo: consertar esses nomes
+
+        number = 1
+        while device_name in self.devices[device_type].keys():
+            number += 1
             device_name = f"{device_name}_{number}"
-            while device_name in self.devices[device_type].keys():
-                number += 1
-                device_name = f"{device_type}_{number}"
 
         if device_type == 'alarm':
             new_device = Alarm(device_name)
@@ -56,7 +56,31 @@ class SmartHomeHub:
             self.devices[device_type][new_device.name] = new_device
 
         else:
-            raise DeviceTypeInvalid(f"Esse tipo de dispositivo nao existe na atual configuracao")
+            raise DeviceTypeInvalid(f"O dispositivo do tipo {device_type} nao existe na atual configuracao")
+
+
+    def remove_device(self, device_type, device_name):
+        self.devices[device_type].pop(device_name)
+        if len(self.devices[device_type]) == 0:
+            self.devices.pop(device_type)
+
+    def print_list_all_devices(self):
+        for i in self.devices:
+            print(f"Dispositivo do tipo: {i}")
+            for j in self.devices[i]:
+                print(f"    {j}")
+
+    def print_list_by_device_type(self, device_type):
+        print(f"Dispositivo do tipo: {device_type}")
+        for i in self.devices[device_type]:
+            print(f"    {i}")
+
+    def remove_all_by_type(self, device_type):
+        self.devices.pop(device_type)
+
+    def get_especific_device(self, device_type, device_name):
+        return self.devices[device_type][device_name]
+
 
 
 # testando
@@ -64,14 +88,26 @@ class SmartHomeHub:
 if __name__ == '__main__':
     casa = SmartHomeHub()
     casa.add_device('door', 'porta1')
+    # print(casa.devices)
+    # casa.remove_device('door', 'porta1')
+    # print(casa.devices)
     casa.add_device('cam', 'camera1')
     casa.add_device('cam', 'camera1')
     casa.add_device('cat_feeder', 'alimentador')
-    casa.add_device('ddd')
+    casa.add_device('cat_feeder', 'alimentador')
+    casa.add_device('cat_feeder', 'alimentador')
+    casa.add_device('cat_feeder', 'alimentador')
     casa.add_device('lamp')
     casa.add_device('switch')
+    casa.add_device('switch')
+    casa.add_device('switch')
+    casa.add_device('switch')
 
+    print(casa.get_especific_device('door', 'porta1'))
+    casa.remove_all_by_type('cam')
 
-    for i in casa.devices.values():
-        for j in i:
-            print(i[j].name)
+    casa.print_list_all_devices()
+
+    # for i in casa.devices.values():
+    #     for j in i:
+    #         print(i[j].name)
