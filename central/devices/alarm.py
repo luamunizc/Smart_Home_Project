@@ -22,6 +22,8 @@ class Alarm(Device):
     def on_enter_RINGING(self):
         print('🚨UIOO🚨UIOO🚨UIOO🚨UIOO🚨') # Alarme apitando
         self._send_notification(f"ALERTA! O alarme '{self.name}' foi disparado!")
+        t = Timer(120.0, self.stop)
+        t.start()
 
     def on_enter_ALERT(self):
         print(f"Alarme '{self.name}' está em modo de alerta")
@@ -42,7 +44,7 @@ class Alarm(Device):
             console.print(f"O alarme '{self.name}' nao está apitando para precisar parar")
         elif self.state == AlarmState.ALERT:
             console.print(f"O alarme '{self.name}' já parou de apitar")
-        elif self.state == AlarmState.RINGING:
+        elif self.state == AlarmState.DEACTIVATED:
             console.print(f"O alarme '{self.name}' está desativado!", style='bold yellow')
         elif self.state == AlarmState.DISCONNECTED:
             console.print(f"O ALARME '{self.name.upper()}' ESTA DESCONECTADO!", style='bold bright_red')
@@ -53,12 +55,26 @@ class Alarm(Device):
         elif self.state == AlarmState.DISCONNECTED:
             console.print(f"O alarme '{self.name}' está desconectado!", style='bold bright_red')
 
+    def rest_fail(self):
+        if self.state == AlarmState.DEACTIVATED:
+            console.print(f"O alarme '{self.name}' está desativado!", style='bold yellow')
+        elif self.state == AlarmState.DISCONNECTED:
+            console.print(f"O alarme '{self.name}' está desconectado!", style='bold bright_red')
+        elif self.state == AlarmState.ACTIVATED:
+            console.print(f"O alarme {self.name} não estava em alerta.", style='bold yellow')
+
+    def deactivate_fail(self):
+        if self.state == AlarmState.DEACTIVATED:
+            console.print(f"O alarme '{self.name}' já está desativado.", style='bold yellow')
+        elif self.state == AlarmState.DISCONNECTED:
+            console.print(f"O ALARME '{self.name.upper()}' ESTA DESCONECTADO!", style='bold bright_red')
+
     def on_enter_DISCONNECTED(self):
         console.print(f"ATENCAO! O ALARME '{self.name.upper()}' ESTA DESCONECTADO!", style='bold bright_red')
 
     # Não irei salvar o modo antes da desconexão pois acho que seria melhor para a segurança reconectar em modo alerta
 
-    def on_exit_DISCONNECTED(self):
+    def exit_DISCONNECTED(self):
         t = Timer(120.0, self.rest)
         t.start()
 
@@ -71,16 +87,19 @@ class Alarm(Device):
         self.machine = Machine(model=self, states=AlarmState, initial=AlarmState.DEACTIVATED)
 
         self.machine.add_transition('activate', AlarmState.DEACTIVATED, AlarmState.ACTIVATED, unless='is_DISCONNECTED')
-        self.machine.add_transition('activate', [AlarmState.RINGING, AlarmState.ALERT, AlarmState.ACTIVATED, AlarmState.DISCONNECTED, AlarmState.ACTIVATED], '=', after='activate_fail')
+        self.machine.add_transition('activate', [AlarmState.RINGING, AlarmState.ALERT, AlarmState.ACTIVATED, AlarmState.DISCONNECTED], '=', after='activate_fail')
         self.machine.add_transition('ring', [AlarmState.ACTIVATED, AlarmState.ALERT], AlarmState.RINGING, unless='is_DISCONNECTED')
         self.machine.add_transition('ring', AlarmState.RINGING, '=')
         self.machine.add_transition('ring', [AlarmState.DISCONNECTED, AlarmState.DEACTIVATED], '=', after='ring_fail')
         self.machine.add_transition('stop', AlarmState.RINGING, AlarmState.ALERT, unless='is_DISCONNECTED')
         self.machine.add_transition('stop', [AlarmState.ACTIVATED, AlarmState.ALERT, AlarmState.DEACTIVATED, AlarmState.DISCONNECTED], '=', after='stop_fail')
         self.machine.add_transition('rest', AlarmState.ALERT, AlarmState.ACTIVATED, unless='is_DISCONNECTED')
-        self.machine.add_transition('deactivate', '*', AlarmState.DEACTIVATED, unless='is_DISCONNECTED')
+        self.machine.add_transition('rest', [AlarmState.DEACTIVATED, AlarmState.ACTIVATED, AlarmState.DISCONNECTED, AlarmState.RINGING], '=', after='rest_fail')
+        self.machine.add_transition('deactivate', AlarmState.ACTIVATED, AlarmState.DEACTIVATED, unless='is_DISCONNECTED')
+        self.machine.add_transition('deactivate', [AlarmState.RINGING, AlarmState.ALERT], AlarmState.RINGING, unless='is_DISCONNECTED')
+        self.machine.add_transition('deactivate', [AlarmState.DEACTIVATED, AlarmState.DISCONNECTED], '=', after='deactivate_fail')
         self.machine.add_transition('disconnection', '*', AlarmState.DISCONNECTED)
-        self.machine.add_transition('reconnect', AlarmState.DISCONNECTED, AlarmState.ALERT)
+        self.machine.add_transition('reconnect', AlarmState.DISCONNECTED, AlarmState.ALERT, after='exit_DISCONNECTED')
         self.machine.add_transition('reconnect', [AlarmState.ACTIVATED, AlarmState.DEACTIVATED, AlarmState.RINGING, AlarmState.ALERT], '=', after='already_connected')
 
 if __name__ == "__main__":
@@ -90,4 +109,6 @@ if __name__ == "__main__":
     # s.activate()
     # s.reconnect()
     s.disconnection()
+    s.disconnection()
     s.stop()
+    s.reconnect()
