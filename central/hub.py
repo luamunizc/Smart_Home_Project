@@ -10,7 +10,20 @@ from errors import *
 class SmartHomeHub:
     def __init__(self):
         self.devices = dict()
+        self.rotinas = dict()
         self._observers = []
+
+    def attach(self, observer):
+        if observer not in self._observers:
+            self._observers.append(observer)
+
+    def detach(self, observer):
+        self._observers.remove(observer)
+
+    def notify(self, event: str, dados: dict):
+        print(f"[EVENTO] {event}: {dados}")
+        for observer in self._observers:
+            observer.update(event, dados)
 
     def add_device(self, device_type, device_name=''):
         """
