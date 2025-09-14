@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from transitions import Machine
-from central.devices.devices import Device, console
+from devices.devices import Device, console
 
 
 class CamState(Enum):
@@ -53,7 +53,7 @@ class Cam(Device):
         self.machine = Machine(model=self, states=CamState, initial=CamState.DEACTIVATED)
 
         self.machine.add_transition('deactivate', '*', CamState.DEACTIVATED, unless='is_DISCONNECTED')
-        self.machine.add_transition('turn_on', CamState.DEACTIVATED, CamState.IDLE, unless='is_DISCONNECTED')
+        self.machine.add_transition('activate', CamState.DEACTIVATED, CamState.IDLE, unless='is_DISCONNECTED')
         self.machine.add_transition('start_recording', CamState.IDLE, CamState.RECORDING, unless='is_DISCONNECTED')
         self.machine.add_transition('start_recording', CamState.STREAMING, CamState.REC_AND_STREAM, unless='is_DISCONNECTED')
         self.machine.add_transition('start_streaming', CamState.IDLE, CamState.STREAMING, unless='is_DISCONNECTED')
@@ -62,6 +62,11 @@ class Cam(Device):
         self.machine.add_transition('stop_recording', CamState.REC_AND_STREAM, CamState.STREAMING, unless='is_DISCONNECTED')
         self.machine.add_transition('stop_streaming', CamState.STREAMING, CamState.IDLE, unless='is_DISCONNECTED')
         self.machine.add_transition('stop_streaming', CamState.REC_AND_STREAM, CamState.RECORDING, unless='is_DISCONNECTED')
-        self.machine.add_transition('disconnected', '*', CamState.DISCONNECTED, before='saved_state')
+        self.machine.add_transition('disconnect', '*', CamState.DISCONNECTED, before='saved_state')
         self.machine.add_transition('reconnect', CamState.DISCONNECTED, CamState.IDLE, after='restore_state')
 
+
+
+if __name__ == '__main__':
+    new = Cam('camera1')
+    print(new)

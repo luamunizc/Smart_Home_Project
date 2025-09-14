@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from transitions import Machine
-from central.devices.devices import Device, console
+from devices.devices import Device, console
+
 
 
 class LampState(Enum):
@@ -48,6 +49,9 @@ class Lamp(Device):
         else:
             print("Erro: Cor inválida.")
 
+    def pick_colour(self):
+        console.print(f"A cor atual da lampada é {self._colour.name}", style=self._colour)
+
     def change_brightness(self, level: int):
         if self.is_DISCONNECTED():
             print("Ação falhou: a lâmpada está desconectada.")
@@ -55,13 +59,16 @@ class Lamp(Device):
         if 1 <= level <= 100:
             self.brightness = level
             print(f"Brilho da lâmpada '{self.name}' ajustado para {level}%.")
+        elif level == 0:
+            self.off()
+            print(f"Lampada {self.name} desligada")
         else:
             print("Erro: Brilho inválido, selecione valor entre 0 e 100.")
 
-    def __init__(self, device_name: str):
+    def __init__(self, device_name: str, colour=Colour.NEUTRA, brightness=100):
         super().__init__(device_name=device_name, device_type="lamp")
-        self._colour = Colour.NEUTRA
-        self._brightness = 100
+        self._colour = colour
+        self._brightness = brightness
         self.before_disconnection = {
             "state": LampState.OFF,
             "colour": self._colour,
@@ -73,10 +80,16 @@ class Lamp(Device):
         self.machine.add_transition('disconnect', '*', LampState.DISCONNECTED, before='save_state')
         self.machine.add_transition('reconnect', LampState.DISCONNECTED, LampState.OFF, after='restore_state')
 
+    def to_dict(self):
+        return {'name': self.name, 'type': self.type, 'colour': self._colour.value, 'brilho': self._brightness}
+
 
 if __name__ == "__main__":
+
     l = Lamp("lamp")
+    print(l)
     l.on()
+    print(l)
     l.change_colour(Colour.QUENTE)
     l.change_colour(Colour.FRIA)
     l.change_colour(Colour.NEUTRA)

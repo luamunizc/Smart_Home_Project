@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from transitions import Machine
-from central.devices.devices import Device, console
+from devices.devices import Device, console
 
 class DoorState(Enum):
     OPENED = auto()
@@ -94,8 +94,10 @@ class Door(Device):
         self.machine.add_transition('close', DoorState.LOCKED, '=', after='_failed_close', unless='is_DISCONNECTED')
 
 
+
 if __name__ == '__main__':
     d = Door("door")
+    print(d)
     d.open()
     d.unlock()
     d.close()

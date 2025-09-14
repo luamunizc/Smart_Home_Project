@@ -1,24 +1,24 @@
 from enum import Enum, auto
 from transitions import Machine
 from threading import Timer
-from central.devices.devices import Device, console
+from devices.devices import Device, console
 from random import randrange
 from time import sleep
 
 
-class CatFeederState(Enum):
+class FeederState(Enum):
     EMPTY = auto()
     IDLE = auto()
     FEEDING = auto()
     DISCONNECTED = auto()
 
-class CatFeeder(Device):
+class Feeder(Device):
 
     def is_EMPTY(self):
         return self.level < 5.2
 
     def is_DISCONNECTED(self):
-        return self.state == CatFeederState.DISCONNECTED
+        return self.state == FeederState.DISCONNECTED
 
     def refilled(self):
         console.print(f"Alimentador '{self.name}' reabastecido", style='bright_green')
@@ -56,20 +56,19 @@ class CatFeeder(Device):
     def __init__(self, device_name: str):
         super().__init__(device_name=device_name, device_type="feeder")
         self.level = 0
-        self.machine = Machine(model=self, states=CatFeederState, initial=CatFeederState.EMPTY)
-        self.machine.add_transition('refill', CatFeederState.EMPTY, CatFeederState.IDLE, before='refilled')
-        self.machine.add_transition('feed', CatFeederState.IDLE, CatFeederState.FEEDING, unless=['is_DISCONNECTED', 'is_EMPTY'], after='start_feeding')
-        self.machine.add_transition('stop', CatFeederState.FEEDING, CatFeederState.IDLE, unless='is_DISCONNECTED', after='finish_feeding')
-        self.machine.add_transition('empty', CatFeederState.IDLE, CatFeederState.EMPTY, unless='is_DISCONNECTED')
-        self.machine.add_transition('disconnected', '*', CatFeederState.DISCONNECTED)
-        self.machine.add_transition('reconnect', CatFeederState.DISCONNECTED, CatFeederState.IDLE, after='empty_reconnection')
-        self.machine.add_transition('feed', CatFeederState.EMPTY, CatFeederState.EMPTY, after='feeding_empty')
-
+        self.machine = Machine(model=self, states=FeederState, initial=FeederState.EMPTY)
+        self.machine.add_transition('refill', FeederState.EMPTY, FeederState.IDLE, before='refilled')
+        self.machine.add_transition('feed', FeederState.IDLE, FeederState.FEEDING, unless=['is_DISCONNECTED', 'is_EMPTY'], after='start_feeding')
+        self.machine.add_transition('stop', FeederState.FEEDING, FeederState.IDLE, unless='is_DISCONNECTED', after='finish_feeding')
+        self.machine.add_transition('empty', FeederState.IDLE, FeederState.EMPTY, unless='is_DISCONNECTED')
+        self.machine.add_transition('disconnect', '*', FeederState.DISCONNECTED)
+        self.machine.add_transition('reconnect', FeederState.DISCONNECTED, FeederState.IDLE, after='empty_reconnection')
+        self.machine.add_transition('feed', FeederState.EMPTY, FeederState.EMPTY, after='feeding_empty')
 
 
 # teste
 if __name__ == "__main__":
-    cf = CatFeeder('malelo')
+    cf = Feeder('malelo')
     cf.refill()
     for _ in range(21):
         cf.feed()

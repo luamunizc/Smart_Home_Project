@@ -1,7 +1,7 @@
 from enum import Enum
 from transitions import Machine
-from central.devices.devices import Device, console
 import time
+from devices.devices import Device, console
 
 
 # Me confundi e traduzi tomada para switch em vez de outlet, mas não vai fazer diferença no uso
@@ -56,7 +56,7 @@ class Switch(Device):
                 f"Consumo nesta sessão: {self.potencia_w * delta_hours:.4f} Wh. Total acumulado: {self.consumo_wh:.4f} Wh.")
             self._last_on_timestamp = None
 
-    def __init__(self, device_name: str, potencia_w: int = 0):
+    def __init__(self, device_name: str, potencia_w: int = 20):
         super().__init__(device_name=device_name, device_type='switch')
         self._potencia_w = 0
         self.potencia_w = potencia_w
@@ -68,4 +68,8 @@ class Switch(Device):
         self.machine.add_transition('on', SwitchState.OFF, SwitchState.ON, unless='is_DISCONNECTED', after='_start_consumption_tracking')
         self.machine.add_transition('off', SwitchState.ON, SwitchState.OFF, unless='is_DISCONNECTED', before='_calculate_consumption')
         self.machine.add_transition('disconnected', '*', SwitchState.DISCONNECTED, before='saved_state')
-        self.machine.add_transition('reconnect', SwitchState.DISCONNECTED, SwitchState.OFF, after='restore_state' )
+        self.machine.add_transition('reconnect', SwitchState.DISCONNECTED, SwitchState.OFF, after='restore_state')
+
+
+    def to_dict(self):
+        return {'name': self.name, 'type': self.type, 'potencia_w': self._potencia_w}

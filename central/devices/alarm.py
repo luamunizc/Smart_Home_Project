@@ -1,7 +1,7 @@
 from threading import Timer
 from enum import Enum, auto
 from transitions import Machine
-from central.devices.devices import Device, console
+from devices.devices import Device, console
 
 
 class AlarmState(Enum):
@@ -102,13 +102,17 @@ class Alarm(Device):
         self.machine.add_transition('reconnect', AlarmState.DISCONNECTED, AlarmState.ALERT, after='exit_DISCONNECTED')
         self.machine.add_transition('reconnect', [AlarmState.ACTIVATED, AlarmState.DEACTIVATED, AlarmState.RINGING, AlarmState.ALERT], '=', after='already_connected')
 
+
+
 if __name__ == "__main__":
     s = Alarm('Principal')
     s.activate()
     s.stop()
     # s.activate()
     # s.reconnect()
-    s.disconnection()
-    s.disconnection()
-    s.stop()
-    s.reconnect()
+    # s.disconnection()
+    # s.disconnection()
+    # s.stop()
+    # s.reconnect()
+    print(s)
+    print(s.__repr__())
