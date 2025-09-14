@@ -7,19 +7,19 @@ from devices.devices import Device, console
 # Me confundi e traduzi tomada para switch em vez de outlet, mas não vai fazer diferença no uso
 
 class SwitchState(Enum):
-    OFF = 0
-    ON = 1
-    DISCONNECTED = 2
+    DESLIGADO = 0
+    LIGADO = 1
+    DESCONECTADO = 2
 
 class Switch(Device):
 
-    def on_enter_ON(self):
+    def on_enter_LIGADO(self):
         console.print(f"Tomada {self.name} ligada", style="bold green")
 
-    def on_enter_OFF(self):
+    def on_enter_DESLIGADO(self):
         console.print(f"Tomada {self.name} desligada", style="bold bright_red")
 
-    def on_enter_DISCONNECTED(self):
+    def on_enter_DESCONECTADO(self):
         console.print(f"Tomada {self.name} desconectada", style="bold color(166)")
 
     def saved_state(self):
@@ -28,11 +28,11 @@ class Switch(Device):
     def restore_state(self):
         target_state = self.before_disconnection
         console.print(f"Tomada {self.name} reconectada", style="bold color(122)")
-        if target_state == SwitchState.ON:
+        if target_state == SwitchState.LIGADO:
             self.on()
 
-    def is_DISCONNECTED(self):
-        return self.state == SwitchState.DISCONNECTED
+    def is_DESCONECTADO(self):
+        return self.state == SwitchState.DESCONECTADO
 
     @property
     def potencia_w(self):
@@ -63,13 +63,16 @@ class Switch(Device):
 
         self.consumo_wh = 0.0
         self._last_on_timestamp = None
-        self.before_disconnection = SwitchState.OFF
-        self.machine = Machine(model=self, states=SwitchState, initial=SwitchState.OFF)
-        self.machine.add_transition('on', SwitchState.OFF, SwitchState.ON, unless='is_DISCONNECTED', after='_start_consumption_tracking')
-        self.machine.add_transition('off', SwitchState.ON, SwitchState.OFF, unless='is_DISCONNECTED', before='_calculate_consumption')
-        self.machine.add_transition('disconnected', '*', SwitchState.DISCONNECTED, before='saved_state')
-        self.machine.add_transition('reconnect', SwitchState.DISCONNECTED, SwitchState.OFF, after='restore_state')
+        self.before_disconnection = SwitchState.DESLIGADO
+        self.machine = Machine(model=self, states=SwitchState, initial=SwitchState.DESLIGADO)
+        self.machine.add_transition('on', SwitchState.DESLIGADO, SwitchState.LIGADO, unless='is_DESCONECTADO', after='_start_consumption_tracking')
+        self.machine.add_transition('off', SwitchState.LIGADO, SwitchState.DESLIGADO, unless='is_DESCONECTADO', before='_calculate_consumption')
+        self.machine.add_transition('disconnected', '*', SwitchState.DESCONECTADO, before='saved_state')
+        self.machine.add_transition('reconnect', SwitchState.DESCONECTADO, SwitchState.DESLIGADO, after='restore_state')
 
 
     def to_dict(self):
-        return {'name': self.name, 'type': self.type, 'potencia_w': self._potencia_w}
+        return {'name': self.name, 'type': self.type, 'potencia_w': self._potencia_w, 'state': self.state.value}
+
+    def __str__(self):
+        return f"Dispositivo {self.name} do tipo {self.type} de potencia {self._potencia_w} no estado {self.state.name}"

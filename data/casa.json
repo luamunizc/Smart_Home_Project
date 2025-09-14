@@ -1,0 +1,39 @@
+{
+  "dispositivos": {
+    "new_switch": {
+      "name": "new_switch",
+      "type": "switch",
+      "potencia_w": 20,
+      "state": 0
+    },
+    "new_alarm": {
+      "name": "new_alarm",
+      "type": "alarm",
+      "state": 3
+    },
+    "new_switch_1": {
+      "name": "new_switch_1",
+      "type": "switch",
+      "potencia_w": 20,
+      "state": 0
+    },
+    "new_door": {
+      "name": "new_door",
+      "type": "door",
+      "state": 2
+    },
+    "ota": {
+      "name": "ota",
+      "type": "door",
+      "state": 2
+    },
+    "sala": {
+      "name": "sala",
+      "type": "lamp",
+      "colour": "NEUTRA",
+      "brilho": 85,
+      "state": 1
+    }
+  },
+  "rotinas": {}
+}

@@ -5,9 +5,9 @@ from devices.devices import Device, console
 
 
 class LampState(Enum):
-    ON = auto()
-    OFF = auto()
-    DISCONNECTED = auto()
+    LIGADO = auto()
+    DESLIGADO = auto()
+    DESCONECTADO = auto()
 
 class Colour(Enum):
     QUENTE = auto()
@@ -16,8 +16,8 @@ class Colour(Enum):
 
 class Lamp(Device):
 
-    def is_DISCONNECTED(self):
-        return self.state == LampState.DISCONNECTED
+    def is_DESCONECTADO(self):
+        return self.state == LampState.DESCONECTADO
 
     def save_state(self):
         self.before_disconnection = {
@@ -30,22 +30,29 @@ class Lamp(Device):
         self.colour = self.before_disconnection["colour"]
         self.brightness = self.before_disconnection["brightness"]
         print(f"Lampada {self.name} reconectada")
-        if self.before_disconnection["state"] == LampState.ON:
+        if self.before_disconnection["state"] == LampState.LIGADO:
             self.on()
 
-    def change_colour(self, new_colour: Colour):
-        if self.is_DISCONNECTED():
+    def change_colour(self, new_colour: str):
+        if self.is_DESCONECTADO():
             print("Ação falhou: a lâmpada está desconectada.")
             return
+        if new_colour == "QUENTE":
+            new_colour = Colour(1)
+        elif new_colour == "FRIA":
+            new_colour = Colour(2)
+        elif new_colour == "NEUTRA":
+            new_colour = Colour(3)
+
         if isinstance(new_colour, Colour):
-            self.colour = new_colour
+            self._colour = new_colour
             if new_colour == Colour.QUENTE:
                 cor = "navajo_white1"
             elif new_colour == Colour.FRIA:
                 cor = "pale_turquoise1"
             elif new_colour == Colour.NEUTRA:
                 cor = "grey93"
-            console.print(f"Cor da lâmpada '{self.name}' alterada para {new_colour.name}", style=cor)
+            console.print(f"Cor da lâmpada '{self.name}' alterada para {Colour(new_colour).name}", style=cor)
         else:
             print("Erro: Cor inválida.")
 
@@ -53,11 +60,11 @@ class Lamp(Device):
         console.print(f"A cor atual da lampada é {self._colour.name}", style=self._colour)
 
     def change_brightness(self, level: int):
-        if self.is_DISCONNECTED():
+        if self.is_DESCONECTADO():
             print("Ação falhou: a lâmpada está desconectada.")
             return
         if 1 <= level <= 100:
-            self.brightness = level
+            self._brightness = level
             print(f"Brilho da lâmpada '{self.name}' ajustado para {level}%.")
         elif level == 0:
             self.off()
@@ -70,19 +77,21 @@ class Lamp(Device):
         self._colour = colour
         self._brightness = brightness
         self.before_disconnection = {
-            "state": LampState.OFF,
+            "state": LampState.DESLIGADO,
             "colour": self._colour,
             "brightness": self._brightness
         }
-        self.machine = Machine(model=self, states=LampState, initial=LampState.OFF)
-        self.machine.add_transition('on', LampState.OFF, LampState.ON, unless='is_DISCONNECTED')
-        self.machine.add_transition('off', LampState.ON, LampState.OFF, unless='is_DISCONNECTED')
-        self.machine.add_transition('disconnect', '*', LampState.DISCONNECTED, before='save_state')
-        self.machine.add_transition('reconnect', LampState.DISCONNECTED, LampState.OFF, after='restore_state')
+        self.machine = Machine(model=self, states=LampState, initial=LampState.DESLIGADO)
+        self.machine.add_transition('on', LampState.DESLIGADO, LampState.LIGADO, unless='is_DESCONECTADO')
+        self.machine.add_transition('off', LampState.LIGADO, LampState.DESLIGADO, unless='is_DESCONECTADO')
+        self.machine.add_transition('disconnect', '*', LampState.DESCONECTADO, before='save_state')
+        self.machine.add_transition('reconnect', LampState.DESCONECTADO, LampState.DESLIGADO, after='restore_state')
 
     def to_dict(self):
-        return {'name': self.name, 'type': self.type, 'colour': self._colour.value, 'brilho': self._brightness}
+        return {'name': self.name, 'type': self.type, 'colour': self._colour.name, 'brilho': self._brightness, 'state': self.state.value}
 
+    def __str__(self):
+        return f"Dispositivo {self.name} do tipo {self.type} de cor {self._colour.name} e brilho {self._brightness}% no estado {self.state.name}"
 
 if __name__ == "__main__":
 

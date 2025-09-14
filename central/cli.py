@@ -7,17 +7,17 @@ casa.comeca()
 
 while True:
 
-    print(f"\n=== SMART HOME HUB ===\n\
-    1. Listar dispositivos\n\
-    TODO 2. Mostrar dispositivo\n\
-    3. Executar comando em dispositivo\n\
-    TODO 4. Alterar atributo de dispositivo\n\
-    TODO 5. Executar rotina\n\
-    TODO 6. Gerar relatorio\n\
-    7. Salvar configuracao\n\
-    8. Adicionar dispositivo\n\
-    9. Remover dispositivo\n\
-    10. Sair\n\n")
+    print(f"\n=== SMART HOME HUB ===\n\n"
+    f"1. Listar dispositivos\n"
+    f"2. Mostrar dispositivo\n"
+    f"3. Executar comando em dispositivo\n"
+    f"4. Alterar atributo de dispositivo\n"
+    # f"TODO 5. Executar rotina\n"
+    # f"TODO 6. Gerar relatorio\n"
+    f"7. Salvar configuracao\n"
+    f"8. Adicionar dispositivo\n"
+    f"9. Remover dispositivo\n"
+    f"10. Sair\n")
     escolha = input(f"Escolha uma opcao:")
     escolha = escolha.strip()
 
@@ -31,18 +31,20 @@ while True:
 
         print()
         em_uso = sel_disponiveis(casa.lista())
-        print(em_uso)
+        print(casa.devices[em_uso].__str__())
 
     elif escolha == "3":
 
         print()
         em_uso = sel_disponiveis(casa.lista())
         casa.usar(em_uso)
-        print(em_uso)
 
 
     elif escolha == "4":
-        ...
+
+        em_uso = sel_disponiveis(casa.lista())
+        casa.atributos(em_uso)
+
     elif escolha == "5":
         ...
     elif escolha == "6":
@@ -55,7 +57,8 @@ while True:
 
         tipo_selecionado = selecao_dispositivo()
         nome_selecionado = nome_dispositivo()
-        casa.add_device(tipo_selecionado, nome_selecionado)
+        adicionar = {'type': tipo_selecionado, 'name': nome_selecionado}
+        casa.add_device(adicionar, nome_selecionado)
 
     elif escolha == "9":
 

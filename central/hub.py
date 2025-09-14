@@ -1,9 +1,9 @@
-from devices.alarm import Alarm
-from devices.cam import Cam
-from devices.feeder import Feeder
-from devices.door import Door
-from devices.lamp import Lamp
-from devices.switch import Switch
+from devices.alarm import Alarm, AlarmState
+from devices.cam import Cam, CamState
+from devices.door import Door, DoorState
+from devices.feeder import Feeder, FeederState
+from devices.lamp import Lamp, LampState, Colour
+from devices.switch import Switch, SwitchState
 from errors import *
 from threading import Lock
 import json
@@ -44,15 +44,17 @@ class SmartHomeHub:
         for observer in self._observers:
             observer.update(event, dados)
 
-    def add_device(self, device_type, device_name=''):
+    def add_device(self, device={}, device_name=''):
         """
         Função para adicionar novos dispositivos ao SmartHomeHub a partir do tipo e nome
         Caso o nome seja uma string vazia, um nome padrao, na forma 'new_{type}' será criado
         Caso o nome dado já exista, será adicionado msm assim, porém renomeado adequadamente
         """
+        if "name" in device.keys():
+            device_name = device["name"]
 
         if device_name == '':
-            device_name = f"new_{device_type}"
+            device_name = f"new_{device['type']}"
 
         if device_name in self.devices.keys():
 
@@ -64,26 +66,44 @@ class SmartHomeHub:
             device_name = new_name
 
         # adicionando os dispositivos nos dicionários dos seus respectivos tipos
-        if device_type == 'alarm':
+        if device['type'] == 'alarm':
             new_device = Alarm(device_name)
+            if 'state' in device.keys():
+                new_device.state = AlarmState(device['state'])
 
-        elif device_type == 'cam':
+        elif device['type'] == 'cam':
             new_device = Cam(device_name)
+            if 'state' in device.keys():
+                new_device.state = CamState(device['state'])
 
-        elif device_type == 'door':
+        elif device['type'] == 'door':
             new_device = Door(device_name)
+            if 'state' in device.keys():
+                new_device.state = DoorState(device['state'])
 
-        elif device_type == 'feeder':
+        elif device['type'] == 'feeder':
             new_device = Feeder(device_name)
+            if 'state' in device.keys():
+                new_device.state = FeederState(device['state'])
 
-        elif device_type == 'lamp':
+        elif device['type'] == 'lamp':
             new_device = Lamp(device_name)
+            if 'state' in device.keys():
+                new_device.state = LampState(device['state'])
+            if 'colour' in device:
+                new_device.change_colour(device['colour'])
+            if 'brilho' in device:
+                new_device._brightness = device['brilho']
 
-        elif device_type == 'switch':
+        elif device['type'] == 'switch':
             new_device = Switch(device_name)
+            if 'state' in device.keys():
+                new_device.state = SwitchState(device['state'])
+            if 'potencia' in device:
+                new_device._potencia = device['potencia']
 
         else:
-            raise DeviceTypeInvalid(f"O dispositivo do tipo {device_type} nao existe na atual configuracao")
+            raise DeviceTypeInvalid(f"O dispositivo do tipo {device['type']} nao existe na atual configuracao")
 
         self.devices[new_device.name] = new_device
 
@@ -94,7 +114,7 @@ class SmartHomeHub:
 
     def print_list_all_devices(self):
         for i in self.devices.values():
-            print(f"{i.name} do tipo {i.type}")
+            print(i.__str__())
 
 
     def get_specific_device(self, device_name):
@@ -123,10 +143,10 @@ class SmartHomeHub:
             print(f"ERRO: Nao foi possivel salvar a configuracao em '{caminho_arquivo}': {e}")
 
     def comeca(self):
-        with open("data/casa.json", 'r') as file:
+        with open("./data/casa.json", 'r') as file:
             tudo = json.load(file)
             for device in tudo['dispositivos'].values():
-                self.add_device(device['type'], device['name'])
+                self.add_device(device)
 
 
     def lista(self):
@@ -301,6 +321,61 @@ class SmartHomeHub:
             elif usando.type == 'switch':
                 self.usando_switch(nome, usando)
 
+    def atributos(self, nome):
+
+        usando = self.devices.get(nome)
+        if usando.type in ('alarm', 'cam', 'door', 'feeder'):
+            print(f"Dispositivos do tipo {usando.type} nao tem atributos a serem alterados")
+        elif usando.type == 'lamp':
+            while True:
+                print(f"Trocar cor ou brilho? (C/b)"
+                      f"Escolha s para sair")
+
+                atrb = input().lower().strip()
+                if atrb == 'c':
+
+                    while True:
+                        print(f"Escolha a cor da lampada entre as opcoes abaixo:"
+                              f"1. Quente"
+                              f"2. Fria"
+                              f"3. Neutra"
+                              f"Digite s para sair")
+                        sel = input().lower().strip()
+                        if sel == '1':
+                            usando.change_colour(1)
+                            break
+                        elif sel == '2':
+                            usando.change_colour(2)
+                            break
+                        elif sel == '3':
+                            usando.change_colour(3)
+                            break
+                        elif sel == 's':
+                            print(f"Operacao abortada")
+                            break
+                        else:
+                            print(f"Comando invalido")
+
+                elif atrb == 'b':
+
+                    while True:
+                        print(f"Digite o valor de brilho desejado")
+                        brl = int(input())
+                        if 0 < brl <= 100:
+                            usando.change_brightness(brl)
+                            break
+                elif atrb == 's':
+                    break
+
+        elif usando.type == 'switch':
+            print(f"Escolha a potencia da tomada {usando.name}")
+            while True:
+                pot = int(input())
+                if  pot < 0:
+                    print(f"Entrada negativa invalida!")
+                else:
+                    break
+            usando._potencia_w = pot
 
 def nome_dispositivo():
     nome = input('Digite o nome do dispositivo:')
@@ -343,29 +418,29 @@ def sel_disponiveis(lista):
 
 # testando
 
-if __name__ == '__main__':
-    casa = SmartHomeHub()
-    casa.add_device('door', 'porta1')
-    print(casa.devices)
-    casa.remove_device('door', 'porta1')
-    casa.add_device('cam', 'camera1')
-    casa.add_device('cam', 'camera1')
-    casa.add_device('feeder', 'alimentador')
-    casa.add_device('feeder', 'alimentador')
-    casa.add_device('feeder', 'alimentador')
-    casa.add_device('feeder', 'alimentador')
-    casa.add_device('lamp')
-    print(casa.devices['lamp'])
-    casa.add_device('switch')
-    casa.add_device('switch')
-    casa.add_device('switch')
-    casa.add_device('switch')
-    print(casa.devices)
-
-    print(casa.get_specific_device('door', 'porta1'))
-    casa.remove_all_by_type('cam')
-
-    casa.print_list_all_devices()
+# if __name__ == '__main__':
+#     casa = SmartHomeHub()
+#     casa.add_device('door', 'porta1')
+#     print(casa.devices)
+#     casa.remove_device('door', 'porta1')
+#     casa.add_device('cam', 'camera1')
+#     casa.add_device('cam', 'camera1')
+#     casa.add_device('feeder', 'alimentador')
+#     casa.add_device('feeder', 'alimentador')
+#     casa.add_device('feeder', 'alimentador')
+#     casa.add_device('feeder', 'alimentador')
+#     casa.add_device('lamp')
+#     print(casa.devices['lamp'])
+#     casa.add_device('switch')
+#     casa.add_device('switch')
+#     casa.add_device('switch')
+#     casa.add_device('switch')
+#     print(casa.devices)
+#
+#     print(casa.get_specific_device('door', 'porta1'))
+#     casa.remove_all_by_type('cam')
+#
+#     casa.print_list_all_devices()
 
     # for i in casa.devices.values():
     #     for j in i:
