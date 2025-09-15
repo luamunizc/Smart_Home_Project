@@ -83,9 +83,13 @@ class Lamp(Device):
         }
         self.machine = Machine(model=self, states=LampState, initial=LampState.DESLIGADO)
         self.machine.add_transition('on', LampState.DESLIGADO, LampState.LIGADO, unless='is_DESCONECTADO')
+        self.machine.add_transition('on', LampState.LIGADO, '=')
         self.machine.add_transition('off', LampState.LIGADO, LampState.DESLIGADO, unless='is_DESCONECTADO')
-        self.machine.add_transition('disconnect', '*', LampState.DESCONECTADO, before='save_state')
+        self.machine.add_transition('off', LampState.DESLIGADO, '=')
+        self.machine.add_transition('disconnect', [LampState.LIGADO, LampState.DESLIGADO], LampState.DESCONECTADO, before='save_state')
+        self.machine.add_transition('disconnect', LampState.DESCONECTADO, '=')
         self.machine.add_transition('reconnect', LampState.DESCONECTADO, LampState.DESLIGADO, after='restore_state')
+        self.machine.add_transition('reconnect', [LampState.LIGADO, LampState.DESLIGADO], '=')
 
     def to_dict(self):
         return {'name': self.name, 'type': self.type, 'colour': self._colour.name, 'brilho': self._brightness, 'state': self.state.value}

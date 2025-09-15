@@ -54,16 +54,23 @@ class Cam(Device):
 
         self.machine.add_transition('deactivate', '*', CamState.DEACTIVATED, unless='is_DISCONNECTED')
         self.machine.add_transition('activate', CamState.DEACTIVATED, CamState.IDLE, unless='is_DISCONNECTED')
+        self.machine.add_transition('activate', [CamState.IDLE, CamState.STREAMING, CamState.RECORDING, CamState.STREAMING, CamState.REC_AND_STREAM], '=')
+        self.machine.add_transition('activate', CamState.DISCONNECTED, '=')
         self.machine.add_transition('start_recording', CamState.IDLE, CamState.RECORDING, unless='is_DISCONNECTED')
+        self.machine.add_transition('start_recording', [CamState.RECORDING, CamState.REC_AND_STREAM], '=')
         self.machine.add_transition('start_recording', CamState.STREAMING, CamState.REC_AND_STREAM, unless='is_DISCONNECTED')
         self.machine.add_transition('start_streaming', CamState.IDLE, CamState.STREAMING, unless='is_DISCONNECTED')
         self.machine.add_transition('start_streaming', CamState.RECORDING, CamState.REC_AND_STREAM, unless='is_DISCONNECTED')
+        self.machine.add_transition('start_streaming', [CamState.STREAMING, CamState.REC_AND_STREAM], '=')
         self.machine.add_transition('stop_recording', CamState.RECORDING, CamState.IDLE, unless='is_DISCONNECTED')
         self.machine.add_transition('stop_recording', CamState.REC_AND_STREAM, CamState.STREAMING, unless='is_DISCONNECTED')
+        self.machine.add_transition('stop_recording', [CamState.STREAMING, CamState.IDLE], '=')
         self.machine.add_transition('stop_streaming', CamState.STREAMING, CamState.IDLE, unless='is_DISCONNECTED')
         self.machine.add_transition('stop_streaming', CamState.REC_AND_STREAM, CamState.RECORDING, unless='is_DISCONNECTED')
+        self.machine.add_transition('stop_streaming', [CamState.RECORDING, CamState.IDLE], '=')
         self.machine.add_transition('disconnect', '*', CamState.DISCONNECTED, before='saved_state')
         self.machine.add_transition('reconnect', CamState.DISCONNECTED, CamState.IDLE, after='restore_state')
+        self.machine.add_transition('reconnect', [CamState.IDLE, CamState.STREAMING, CamState.RECORDING, CamState.REC_AND_STREAM, CamState.DEACTIVATED], '=')
 
 
 

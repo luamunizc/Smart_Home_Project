@@ -66,9 +66,13 @@ class Switch(Device):
         self.before_disconnection = SwitchState.DESLIGADO
         self.machine = Machine(model=self, states=SwitchState, initial=SwitchState.DESLIGADO)
         self.machine.add_transition('on', SwitchState.DESLIGADO, SwitchState.LIGADO, unless='is_DESCONECTADO', after='_start_consumption_tracking')
+        self.machine.add_transition('on', [SwitchState.LIGADO, SwitchState.DESCONECTADO], '=')
         self.machine.add_transition('off', SwitchState.LIGADO, SwitchState.DESLIGADO, unless='is_DESCONECTADO', before='_calculate_consumption')
-        self.machine.add_transition('disconnected', '*', SwitchState.DESCONECTADO, before='saved_state')
+        self.machine.add_transition('off', [SwitchState.DESCONECTADO, SwitchState.DESLIGADO], '=')
+        self.machine.add_transition('disconnect', [SwitchState.LIGADO, SwitchState.DESLIGADO], SwitchState.DESCONECTADO, before='saved_state')
+        self.machine.add_transition('disconnect', SwitchState.DESCONECTADO, '=')
         self.machine.add_transition('reconnect', SwitchState.DESCONECTADO, SwitchState.DESLIGADO, after='restore_state')
+        self.machine.add_transition('reconnect', [SwitchState.LIGADO, SwitchState.DESLIGADO], '=')
 
 
     def to_dict(self):

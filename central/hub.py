@@ -85,6 +85,8 @@ class SmartHomeHub:
             new_device = Feeder(device_name)
             if 'state' in device.keys():
                 new_device.state = FeederState(device['state'])
+            if 'level' in device.keys():
+                new_device.level = device['level']
 
         elif device['type'] == 'lamp':
             new_device = Lamp(device_name)
@@ -407,12 +409,13 @@ def selecao_dispositivo():
             print("Erro ao selecionar dispositivo")
 
 def sel_disponiveis(lista):
-    try:
-        selecao = int(input("Selecione o numero de dispositivo:"))
-        if selecao < len(lista):
-            return lista[selecao].name
-    except:
-        print("Erro ao selecionar dispositivo")
+    while True:
+        try:
+            selecao = int(input("Selecione o numero de dispositivo:"))
+            if selecao < len(lista):
+                return lista[selecao].name
+        except:
+            print("Erro ao selecionar dispositivo")
 
 
 

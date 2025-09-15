@@ -22,11 +22,13 @@ class Alarm(Device):
     def on_enter_RINGING(self):
         print('🚨UIOO🚨UIOO🚨UIOO🚨UIOO🚨') # Alarme apitando
         self._send_notification(f"ALERTA! O alarme '{self.name}' foi disparado!")
-        t = Timer(120.0, self.stop)
-        t.start()
+        # t = Timer(120.0, self.stop) # Timer para simular um tempo em que o alarme vai fazer barulho, mas para a entrega desse trabalho, pode ficar sem executar msm
+        # t.start()
 
     def on_enter_ALERT(self):
         print(f"Alarme '{self.name}' está em modo de alerta")
+        # t = Timer(120.0, self.rest) # Timer para sair automaticamente do modo alerta
+        # t.start()
 
     def is_DISCONNECTED(self):
         return self.state == AlarmState.DISCONNECTED

@@ -57,13 +57,27 @@ class Feeder(Device):
         super().__init__(device_name=device_name, device_type="feeder")
         self.level = 0
         self.machine = Machine(model=self, states=FeederState, initial=FeederState.VAZIO)
-        self.machine.add_transition('refill', FeederState.VAZIO, FeederState.LIGADO, before='refilled')
+        self.machine.add_transition('refill', [FeederState.VAZIO, FeederState.LIGADO], FeederState.LIGADO, before='refilled')
+        self.machine.add_transition('refill', [FeederState.ALIMENTANDO, FeederState.DESCONECTADO], '=')
         self.machine.add_transition('feed', FeederState.LIGADO, FeederState.ALIMENTANDO, unless=['is_DESCONECTADO', 'is_VAZIO'], after='start_feeding')
+        self.machine.add_transition('feed', [FeederState.ALIMENTANDO, FeederState.DESCONECTADO], '=')
+        self.machine.add_transition('feed', FeederState.VAZIO, FeederState.VAZIO, after='feeding_empty')
         self.machine.add_transition('stop', FeederState.ALIMENTANDO, FeederState.LIGADO, unless='is_DESCONECTADO', after='finish_feeding')
+        self.machine.add_transition('stop', [FeederState.VAZIO, FeederState.LIGADO, FeederState.DESCONECTADO], '=')
         self.machine.add_transition('empty', FeederState.LIGADO, FeederState.VAZIO, unless='is_DESCONECTADO')
+        self.machine.add_transition('empty', [FeederState.VAZIO, FeederState.ALIMENTANDO, FeederState.DESCONECTADO], '=')
         self.machine.add_transition('disconnect', '*', FeederState.DESCONECTADO)
         self.machine.add_transition('reconnect', FeederState.DESCONECTADO, FeederState.LIGADO, after='empty_reconnection')
-        self.machine.add_transition('feed', FeederState.VAZIO, FeederState.VAZIO, after='feeding_empty')
+        self.machine.add_transition('reconnect', [FeederState.VAZIO, FeederState.ALIMENTANDO, FeederState.LIGADO], '=')
+
+    def to_dict(self):
+        return {'name': self.name, 'type': self.type, 'state': self.state.value, 'level': self.level}
+
+    def __str__(self):
+        if self.state == FeederState.VAZIO:
+            return f"Alimentador de racao {self.name} vazio"
+        else:
+            return f"Alimentador de racao {self.name} no estado {self.state.name} e nivel de racao {self.level}"
 
 
 # teste
