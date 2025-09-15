@@ -1,7 +1,8 @@
 from threading import Timer
 from enum import Enum, auto
 from transitions import Machine
-from devices.devices import Device, console
+from devices.devices import Device, console, logging
+from datetime import datetime
 
 
 class AlarmState(Enum):
@@ -14,10 +15,10 @@ class AlarmState(Enum):
 class Alarm(Device):
 
     def _send_notification(self, message: str):
-        print(f"📢 NOTIFICAÇÃO: {message}")
+        print(f"{datetime.now()} NOTIFICAÇÃO: {message}")
 
     def on_enter_ACTIVATED(self):
-        print(f"Alarme '{self.name}' está ativado")
+        print(f"Alarme '{self.name}' esta ativado")
 
     def on_enter_RINGING(self):
         print('🚨UIOO🚨UIOO🚨UIOO🚨UIOO🚨') # Alarme apitando
@@ -35,7 +36,7 @@ class Alarm(Device):
 
     def activate_fail(self):
         if self.state == AlarmState.ACTIVATED:
-            console.print(f"Alarme '{self.name}' já está ativado!", style='bright_yellow')
+            console.print(f"Alarme '{self.name}' ja está ativado!", style='bright_yellow')
         elif self.state == AlarmState.ALERT or self.state == AlarmState.RINGING:
             console.print(f"O alarme '{self.name}' saiu do estado de alerta mas continua ativado!", style='bright_cyan')
         elif self.state == AlarmState.DISCONNECTED:
@@ -45,29 +46,29 @@ class Alarm(Device):
         if self.state == AlarmState.ACTIVATED:
             console.print(f"O alarme '{self.name}' nao está apitando para precisar parar")
         elif self.state == AlarmState.ALERT:
-            console.print(f"O alarme '{self.name}' já parou de apitar")
+            console.print(f"O alarme '{self.name}' ja parou de apitar")
         elif self.state == AlarmState.DEACTIVATED:
-            console.print(f"O alarme '{self.name}' está desativado!", style='bold yellow')
+            console.print(f"O alarme '{self.name}' esta desativado!", style='bold yellow')
         elif self.state == AlarmState.DISCONNECTED:
             console.print(f"O ALARME '{self.name.upper()}' ESTA DESCONECTADO!", style='bold bright_red')
 
     def ring_fail(self):
         if self.state == AlarmState.DEACTIVATED:
-            console.print(f"O alarme '{self.name}' está desativado!", style='bold yellow')
+            console.print(f"O alarme '{self.name}' esta desativado!", style='bold yellow')
         elif self.state == AlarmState.DISCONNECTED:
-            console.print(f"O alarme '{self.name}' está desconectado!", style='bold bright_red')
+            console.print(f"O alarme '{self.name}' esta desconectado!", style='bold bright_red')
 
     def rest_fail(self):
         if self.state == AlarmState.DEACTIVATED:
-            console.print(f"O alarme '{self.name}' está desativado!", style='bold yellow')
+            console.print(f"O alarme '{self.name}' esta desativado!", style='bold yellow')
         elif self.state == AlarmState.DISCONNECTED:
-            console.print(f"O alarme '{self.name}' está desconectado!", style='bold bright_red')
+            console.print(f"O alarme '{self.name}' esta desconectado!", style='bold bright_red')
         elif self.state == AlarmState.ACTIVATED:
-            console.print(f"O alarme {self.name} não estava em alerta.", style='bold yellow')
+            console.print(f"O alarme {self.name} nao estava em alerta.", style='bold yellow')
 
     def deactivate_fail(self):
         if self.state == AlarmState.DEACTIVATED:
-            console.print(f"O alarme '{self.name}' já está desativado.", style='bold yellow')
+            console.print(f"O alarme '{self.name}' ja está desativado.", style='bold yellow')
         elif self.state == AlarmState.DISCONNECTED:
             console.print(f"O ALARME '{self.name.upper()}' ESTA DESCONECTADO!", style='bold bright_red')
 
@@ -81,7 +82,7 @@ class Alarm(Device):
         t.start()
 
     def already_connected(self):
-        console.print(f"O alarme '{self.name}' já esta conectado!", style='green')
+        print(f"O alarme '{self.name}' ja esta conectado!")
 
     def __init__(self, device_name: str):
         super().__init__(device_name=device_name, device_type="alarm")

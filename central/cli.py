@@ -48,10 +48,6 @@ while True:
         casa.atributos(em_uso)
 
     elif escolha == "5":
-        ...
-    elif escolha == "6":
-        ...
-    elif escolha == "5":
 
         casa.salvar_configuracao('data/casa.json')
 

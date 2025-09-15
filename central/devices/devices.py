@@ -2,6 +2,8 @@ from rich.console import Console
 
 console = Console()
 
+logging = open('data/log.txt', 'a')
+
 class Device:
     def __init__(self, device_type: str, device_name: str):
         self.name = device_name

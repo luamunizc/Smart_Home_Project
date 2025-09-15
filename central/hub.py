@@ -111,7 +111,13 @@ class SmartHomeHub:
 
 
     def remove_device(self, device_name):
-        self.devices.pop(device_name)
+        print(f"Realmente quer excluir o dispositivo {device_name}?"
+              f"s = sim     | qualquer outra selecao cancela a operacao")
+        sel = input().lower().strip()
+        if sel == 's':
+            self.devices.pop(device_name)
+        else:
+            print(f"Operacao de exclusao do dispositivo {device_name} cancelada")
 
 
     def print_list_all_devices(self):
@@ -123,7 +129,7 @@ class SmartHomeHub:
         if device_name in self.devices.keys():
             return self.devices.get(device_name)
         else:
-            return f"Nenhum dispositivo encontrado"
+            return f"Nenhum dispositivo com o nome {device_name} encontrado"
 
     def salvar_configuracao(self, caminho_arquivo: str):
 
@@ -139,16 +145,21 @@ class SmartHomeHub:
 
         try:
             with open(caminho_arquivo, 'w', encoding='utf-8') as f:
-                json.dump(config_data, f, indent=2, ensure_ascii=False)
+                json.dump(config_data, f, indent=4, ensure_ascii=False)
             print("Configuracao salva com sucesso.")
         except IOError as e:
             print(f"ERRO: Nao foi possivel salvar a configuracao em '{caminho_arquivo}': {e}")
 
     def comeca(self):
-        with open("./data/casa.json", 'r') as file:
-            tudo = json.load(file)
-            for device in tudo['dispositivos'].values():
-                self.add_device(device)
+        try:
+            with open("./data/casa.json", 'r') as file:
+                tudo = json.load(file)
+                for device in tudo['dispositivos'].values():
+                    self.add_device(device)
+        except FileNotFoundError:
+            print(f"Arquivo de permanencia nao encontrado")
+        except:
+            print(f"Aconteceu um erro inesperado")
 
 
     def lista(self):
@@ -175,7 +186,7 @@ class SmartHomeHub:
             elif sel == '2':
                 uso.deactivate()
             elif sel == '3':
-                uso.reconnecte()
+                uso.reconnect()
             elif sel == '4':
                 uso.rest()
             elif sel == '5':
