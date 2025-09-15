@@ -2,7 +2,7 @@ from devices.alarm import Alarm, AlarmState
 from devices.cam import Cam, CamState
 from devices.door import Door, DoorState
 from devices.feeder import Feeder, FeederState
-from devices.lamp import Lamp, LampState, Colour
+from devices.lamp import Lamp, LampState
 from devices.switch import Switch, SwitchState
 from errors import *
 from threading import Lock
@@ -76,7 +76,7 @@ class SmartHomeHub:
             if 'state' in device.keys():
                 new_device.state = CamState(device['state'])
 
-        elif device['type'] == 'door':
+        elif device['type'] == 'porta':
             new_device = Door(device_name)
             if 'state' in device.keys():
                 new_device.state = DoorState(device['state'])
@@ -95,12 +95,12 @@ class SmartHomeHub:
             if 'brilho' in device:
                 new_device._brightness = device['brilho']
 
-        elif device['type'] == 'switch':
+        elif device['type'] == 'tomada':
             new_device = Switch(device_name)
             if 'state' in device.keys():
                 new_device.state = SwitchState(device['state'])
-            if 'potencia' in device:
-                new_device._potencia = device['potencia']
+            if 'potencia_w' in device:
+                new_device._potencia_w = device['potencia_w']
 
         else:
             raise DeviceTypeInvalid(f"O dispositivo do tipo {device['type']} nao existe na atual configuracao")
@@ -166,7 +166,7 @@ class SmartHomeHub:
                   f"3. reconectar\n"
                   f"4. pausar\n"
                   f"5. parar\n")
-            print('Ou digite c para sair')
+            print('Ou digite s para sair')
             sel = input().lower().strip()
             if sel == '1':
                 uso.activate()
@@ -178,7 +178,7 @@ class SmartHomeHub:
                 uso.rest()
             elif sel == '5':
                 uso.stop()
-            elif sel == 'c':
+            elif sel == 's':
                 break
 
     def usando_cam(self, nome, uso):
@@ -193,7 +193,7 @@ class SmartHomeHub:
                   f"6. parar gravacao\n"
                   f"7. parar transmissao\n"
                   f"8. desconectar\n")
-            print('Ou digite c para sair')
+            print('Ou digite s para sair')
             sel = input().lower().strip()
             if sel == '1':
                 uso.activate()
@@ -211,10 +211,10 @@ class SmartHomeHub:
                 uso.stop_streaming()
             elif sel == '8':
                 uso.disconnect()
-            elif sel == 'c':
+            elif sel == 's':
                 break
 
-    def usando_door(self, nome, uso):
+    def usando_porta(self, nome, uso):
 
         while True:
             print(f"Opcoes de porta {nome}:\n"
@@ -224,7 +224,7 @@ class SmartHomeHub:
                   f"4. destrancar\n"
                   f"5. reconectar\n"
                   f"6. desconectar\n")
-            print('Ou digite c para sair')
+            print('Ou digite s para sair')
             sel = input().lower().strip()
             if sel == '1':
                 uso.open()
@@ -238,7 +238,7 @@ class SmartHomeHub:
                 uso.reconnect()
             elif sel == '6':
                 uso.disconnect()
-            elif sel == 'c':
+            elif sel == 's':
                 break
 
     def usando_feeder(self, nome, uso):
@@ -249,7 +249,7 @@ class SmartHomeHub:
                   f"2. encher pote\n"
                   f"3. desconectar\n"
                   f"4. reconectar\n")
-            print('Ou digite c para sair')
+            print('Ou digite s para sair')
             sel = input().lower().strip()
             if sel == '1':
                 uso.refill()
@@ -259,7 +259,7 @@ class SmartHomeHub:
                 uso.disconnect()
             elif sel == '4':
                 uso.reconnect()
-            elif sel == 'c':
+            elif sel == 's':
                 break
 
     def usando_lamp(self, nome, uso):
@@ -270,7 +270,7 @@ class SmartHomeHub:
                   f"2. desligar\n"
                   f"3. desconectar\n"
                   f"4. reconectar\n")
-            print('Ou digite c para sair')
+            print('Ou digite s para sair')
             sel = input().lower().strip()
             if sel == '1':
                 uso.on()
@@ -280,7 +280,7 @@ class SmartHomeHub:
                 uso.disconnect()
             elif sel == '4':
                 uso.reconnect()
-            elif sel == 'c':
+            elif sel == 's':
                 break
 
     def usando_switch(self, nome, uso):
@@ -291,7 +291,7 @@ class SmartHomeHub:
                   f"2. desligar\n"
                   f"3. desconectar\n"
                   f"4. reconectar\n")
-            print('Ou digite c para sair')
+            print('Ou digite s para sair')
             sel = input().lower().strip()
             if sel == '1':
                 uso.on()
@@ -301,7 +301,7 @@ class SmartHomeHub:
                 uso.disconnect()
             elif sel == '4':
                 uso.reconnect()
-            elif sel == 'c':
+            elif sel == 's':
                 break
 
 
@@ -312,43 +312,43 @@ class SmartHomeHub:
                 self.usando_alarm(nome, usando)
             elif usando.type == 'cam':
                 self.usando_cam(nome, usando)
-            elif usando.type == 'door':
-                self.usando_door(nome, usando)
+            elif usando.type == 'porta':
+                self.usando_porta(nome, usando)
             elif usando.type == 'feeder':
                 self.usando_feeder(nome, usando)
             elif usando.type == 'lamp':
                 self.usando_lamp(nome, usando)
-            elif usando.type == 'switch':
+            elif usando.type == 'tomada':
                 self.usando_switch(nome, usando)
 
     def atributos(self, nome):
 
         usando = self.devices.get(nome)
-        if usando.type in ('alarm', 'cam', 'door', 'feeder'):
+        if usando.type in ('alarm', 'cam', 'porta', 'feeder'):
             print(f"Dispositivos do tipo {usando.type} nao tem atributos a serem alterados")
         elif usando.type == 'lamp':
             while True:
-                print(f"Trocar cor ou brilho? (C/b)"
+                print(f"Trocar cor ou brilho? (C/b)\n"
                       f"Escolha s para sair")
 
                 atrb = input().lower().strip()
                 if atrb == 'c':
 
                     while True:
-                        print(f"Escolha a cor da lampada entre as opcoes abaixo:"
-                              f"1. Quente"
-                              f"2. Fria"
-                              f"3. Neutra"
-                              f"Digite s para sair")
+                        print(f"Escolha a cor da lampada entre as opcoes abaixo:\n"
+                              f"1. Quente\n"
+                              f"2. Fria\n"
+                              f"3. Neutra\n"
+                              f"Ou digite s para sair\n")
                         sel = input().lower().strip()
                         if sel == '1':
-                            usando.change_colour(1)
+                            usando.change_colour('QUENTE')
                             break
                         elif sel == '2':
-                            usando.change_colour(2)
+                            usando.change_colour('FRIA')
                             break
                         elif sel == '3':
-                            usando.change_colour(3)
+                            usando.change_colour('NEUTRA')
                             break
                         elif sel == 's':
                             print(f"Operacao abortada")
@@ -367,11 +367,11 @@ class SmartHomeHub:
                 elif atrb == 's':
                     break
 
-        elif usando.type == 'switch':
+        elif usando.type == 'tomada':
             print(f"Escolha a potencia da tomada {usando.name}")
             while True:
                 pot = int(input())
-                if  pot < 0:
+                if  pot < 0: # Confesso que nao entendo o suficiente de eletronica para saber qual deveria ser o limite superior disso
                     print(f"Entrada negativa invalida!")
                 else:
                     break
@@ -398,11 +398,11 @@ def selecao_dispositivo():
         elif tipo == '3':
             return 'feeder'
         elif tipo == '4':
-            return 'door'
+            return 'porta'
         elif tipo == '5':
             return 'lamp'
         elif tipo == '6':
-            return 'switch'
+            return 'tomada'
         else:
             print("Erro ao selecionar dispositivo")
 
@@ -420,9 +420,9 @@ def sel_disponiveis(lista):
 
 # if __name__ == '__main__':
 #     casa = SmartHomeHub()
-#     casa.add_device('door', 'porta1')
+#     casa.add_device('porta', 'porta1')
 #     print(casa.devices)
-#     casa.remove_device('door', 'porta1')
+#     casa.remove_device('porta', 'porta1')
 #     casa.add_device('cam', 'camera1')
 #     casa.add_device('cam', 'camera1')
 #     casa.add_device('feeder', 'alimentador')
@@ -431,13 +431,13 @@ def sel_disponiveis(lista):
 #     casa.add_device('feeder', 'alimentador')
 #     casa.add_device('lamp')
 #     print(casa.devices['lamp'])
-#     casa.add_device('switch')
-#     casa.add_device('switch')
-#     casa.add_device('switch')
-#     casa.add_device('switch')
+#     casa.add_device('tomada')
+#     casa.add_device('tomada')
+#     casa.add_device('tomada')
+#     casa.add_device('tomada')
 #     print(casa.devices)
 #
-#     print(casa.get_specific_device('door', 'porta1'))
+#     print(casa.get_specific_device('porta', 'porta1'))
 #     casa.remove_all_by_type('cam')
 #
 #     casa.print_list_all_devices()

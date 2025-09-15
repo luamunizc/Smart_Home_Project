@@ -3,65 +3,65 @@ from transitions import Machine
 from devices.devices import Device, console
 
 class DoorState(Enum):
-    OPENED = auto()
-    CLOSED = auto()
-    LOCKED = auto()
-    DISCONNECTED = auto()
+    ABERTA = auto()
+    FECHADA = auto()
+    TRANCADA = auto()
+    DESCONECTADA = auto()
 
 class Door(Device):
 
     def _failed_close(self):
 
         self.failed_close += 1
-        if self.state == DoorState.CLOSED:
+        if self.state == DoorState.FECHADA:
             console.print(f"AVISO: A porta '{self.name}' já está fechada!", style='bright_yellow')
-        elif self.state == DoorState.LOCKED:
+        elif self.state == DoorState.TRANCADA:
             console.print(f"AVISO: Não é possível fechar a porta '{self.name}' pois ela já está trancada!", style='bright_yellow')
 
     def _failed_lock(self):
 
         self.failed_lock += 1
-        if self.state == DoorState.OPENED:
+        if self.state == DoorState.ABERTA:
             console.print(f"AVISO: Não é possível trancar a porta '{self.name}' pois ela está aberta!", style='bright_red')
-        elif self.state == DoorState.LOCKED:
+        elif self.state == DoorState.TRANCADA:
             console.print(f"AVISO: A porta {self.name} já está trancada!", style='bright_yellow')
         print(f"Total de tentativas de trancamento inválidas: {self.failed_lock}")
 
     def _failed_unlock(self):
 
         self.failed_unlock += 1
-        if self.state == DoorState.OPENED:
+        if self.state == DoorState.ABERTA:
             console.print(f"AVISO: Não é possível destrancar a porta '{self.name}' pois ela está aberta!", style='bright_red')
-        elif self.state == DoorState.CLOSED:
+        elif self.state == DoorState.FECHADA:
             console.print(f"AVISO: Não é possível destrancar a porta '{self.name}' pois ela já está destrancada!", style='bright_yellow')
         print(f"Total de tentativas de destrancamento inválidas: {self.failed_unlock}")
 
     def _failed_open(self):
 
         self.failed_open += 1
-        if self.state == DoorState.LOCKED:
+        if self.state == DoorState.TRANCADA:
             console.print(f"AVISO: Não é possível abrir a porta '{self.name}' pois ela está trancada!", style='bright_red')
-        elif self.state == DoorState.OPENED:
+        elif self.state == DoorState.ABERTA:
             console.print(f"AVISO: A porta '{self.name}' já está aberta!", style='bright_yellow')
         print(f"Total de tentativas de abertura inválidas: {self.failed_open}")
 
-    def on_enter_CLOSED(self):
+    def on_enter_FECHADA(self):
         print(f'Porta {self.name} fechada')
 
-    def on_enter_OPENED(self):
+    def on_enter_ABERTA(self):
         print(f"Porta {self.name} aberta")
 
-    def on_enter_LOCKED(self):
+    def on_enter_TRANCADA(self):
         print(f'Porta {self.name} trancada')
 
-    def on_enter_DISCONNECTED(self):
+    def on_enter_DESCONECTADA(self):
         print(f'Porta {self.name} desconectada')
 
-    def is_OPENED(self):
-        return self.state == DoorState.OPENED
+    def is_ABERTA(self):
+        return self.state == DoorState.ABERTA
 
-    def is_LOCKED(self):
-        return self.state == DoorState.LOCKED
+    def is_TRANCADA(self):
+        return self.state == DoorState.TRANCADA
 
     def reconnection(self):
         print(f'Porta {self.name} reconectada')
@@ -70,33 +70,33 @@ class Door(Device):
         console.print(f"A porta {self.name} já está conectada", style='bright_magenta')
 
     def __init__(self, device_name: str):
-        super().__init__(device_name=device_name, device_type="door")
+        super().__init__(device_name=device_name, device_type="porta")
         self.failed_close = 0
         self.failed_lock = 0
         self.failed_open = 0
         self.failed_unlock = 0
-        self.machine = Machine(model=self, states=DoorState, initial=DoorState.CLOSED)
+        self.machine = Machine(model=self, states=DoorState, initial=DoorState.FECHADA)
 
-        self.machine.add_transition('open', DoorState.CLOSED, DoorState.OPENED, unless=['is_LOCKED', 'is_DISCONNECTED'])
-        self.machine.add_transition('close', DoorState.OPENED, DoorState.CLOSED, unless='is_DISCONNECTED')
-        self.machine.add_transition('lock', DoorState.CLOSED, DoorState.LOCKED, unless=['is_OPENED', 'is_DISCONNECTED'])
-        self.machine.add_transition('unlock', DoorState.LOCKED, DoorState.CLOSED, unless='is_DISCONNECTED')
-        self.machine.add_transition('disconnect', '*', DoorState.DISCONNECTED)
-        self.machine.add_transition('reconnect', DoorState.DISCONNECTED, DoorState.CLOSED, after='reconnection')
-        self.machine.add_transition('lock', DoorState.OPENED, '=', after='_failed_lock', unless='is_DISCONNECTED')
-        self.machine.add_transition('lock', DoorState.LOCKED, '=', after='_failed_lock', unless='is_DISCONNECTED')
-        self.machine.add_transition('open', DoorState.LOCKED, '=', after='_failed_open', unless='is_DISCONNECTED')
-        self.machine.add_transition('open', DoorState.OPENED, '=', after='_failed_open', unless='is_DISCONNECTED')
-        self.machine.add_transition('unlock', DoorState.OPENED, '=', after='_failed_unlock', unless='is_DISCONNECTED')
-        self.machine.add_transition('unlock', DoorState.CLOSED, '=', after='_failed_unlock', unless='is_DISCONNECTED')
-        self.machine.add_transition('reconnect', [DoorState.CLOSED, DoorState.OPENED, DoorState.LOCKED], '=', after='reconnection_fail')
-        self.machine.add_transition('close', DoorState.CLOSED, '=', after='_failed_close', unless='is_DISCONNECTED')
-        self.machine.add_transition('close', DoorState.LOCKED, '=', after='_failed_close', unless='is_DISCONNECTED')
+        self.machine.add_transition('open', DoorState.FECHADA, DoorState.ABERTA, unless=['is_TRANCADA', 'is_DESCONECTADA'])
+        self.machine.add_transition('close', DoorState.ABERTA, DoorState.FECHADA, unless='is_DESCONECTADA')
+        self.machine.add_transition('lock', DoorState.FECHADA, DoorState.TRANCADA, unless=['is_ABERTA', 'is_DESCONECTADA'])
+        self.machine.add_transition('unlock', DoorState.TRANCADA, DoorState.FECHADA, unless='is_DESCONECTADA')
+        self.machine.add_transition('disconnect', '*', DoorState.DESCONECTADA)
+        self.machine.add_transition('reconnect', DoorState.DESCONECTADA, DoorState.FECHADA, after='reconnection')
+        self.machine.add_transition('lock', DoorState.ABERTA, '=', after='_failed_lock', unless='is_DESCONECTADA')
+        self.machine.add_transition('lock', DoorState.TRANCADA, '=', after='_failed_lock', unless='is_DESCONECTADA')
+        self.machine.add_transition('open', DoorState.TRANCADA, '=', after='_failed_open', unless='is_DESCONECTADA')
+        self.machine.add_transition('open', DoorState.ABERTA, '=', after='_failed_open', unless='is_DESCONECTADA')
+        self.machine.add_transition('unlock', DoorState.ABERTA, '=', after='_failed_unlock', unless='is_DESCONECTADA')
+        self.machine.add_transition('unlock', DoorState.FECHADA, '=', after='_failed_unlock', unless='is_DESCONECTADA')
+        self.machine.add_transition('reconnect', [DoorState.FECHADA, DoorState.ABERTA, DoorState.TRANCADA], '=', after='reconnection_fail')
+        self.machine.add_transition('close', DoorState.FECHADA, '=', after='_failed_close', unless='is_DESCONECTADA')
+        self.machine.add_transition('close', DoorState.TRANCADA, '=', after='_failed_close', unless='is_DESCONECTADA')
 
 
 
 if __name__ == '__main__':
-    d = Door("door")
+    d = Door("porta")
     print(d)
     d.open()
     d.unlock()

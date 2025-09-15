@@ -57,7 +57,7 @@ class Switch(Device):
             self._last_on_timestamp = None
 
     def __init__(self, device_name: str, potencia_w: int = 20):
-        super().__init__(device_name=device_name, device_type='switch')
+        super().__init__(device_name=device_name, device_type='tomada')
         self._potencia_w = 0
         self.potencia_w = potencia_w
 

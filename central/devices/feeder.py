@@ -7,30 +7,30 @@ from time import sleep
 
 
 class FeederState(Enum):
-    EMPTY = auto()
-    IDLE = auto()
-    FEEDING = auto()
-    DISCONNECTED = auto()
+    VAZIO = auto()
+    LIGADO = auto()
+    ALIMENTANDO = auto()
+    DESCONECTADO = auto()
 
 class Feeder(Device):
 
-    def is_EMPTY(self):
+    def is_VAZIO(self):
         return self.level < 5.2
 
-    def is_DISCONNECTED(self):
-        return self.state == FeederState.DISCONNECTED
+    def is_DESCONECTADO(self):
+        return self.state == FeederState.DESCONECTADO
 
     def refilled(self):
         console.print(f"Alimentador '{self.name}' reabastecido", style='bright_green')
         self.level = 100 # Assumindo um reabastecimento de 100%
 
-    def on_enter_IDLE(self):
+    def on_enter_LIGADO(self):
         console.print(f"Alimentador '{self.name}' em modo standby")
 
-    def on_enter_FEEDING(self):
+    def on_enter_ALIMENTANDO(self):
         console.print(f"Alimentador '{self.name}' enchendo o pote de racao", style="dark_goldenrod")
 
-    def on_enter_EMPTY(self):
+    def on_enter_VAZIO(self):
         console.print(f"Alimentador '{self.name}' precisa ser recarregado!", style='red')
 
     def start_feeding(self):
@@ -41,7 +41,7 @@ class Feeder(Device):
         timer.start()
 
     def finish_feeding(self):
-        if self.is_EMPTY():
+        if self.is_VAZIO():
             self.empty()
         elif self.level < 20:
             console.print(f"AVISO: Alimentador '{self.name}' está com pouca ração ({self.level:.1f}%)!", style='orange1')
@@ -50,20 +50,20 @@ class Feeder(Device):
         console.print(f"O alimentador '{self.name}' está vazio! Reabasteca antes de usar.", style='bold bright_red')
 
     def empty_reconnection(self):
-        if self.is_EMPTY():
+        if self.is_VAZIO():
             self.empty()
 
     def __init__(self, device_name: str):
         super().__init__(device_name=device_name, device_type="feeder")
         self.level = 0
-        self.machine = Machine(model=self, states=FeederState, initial=FeederState.EMPTY)
-        self.machine.add_transition('refill', FeederState.EMPTY, FeederState.IDLE, before='refilled')
-        self.machine.add_transition('feed', FeederState.IDLE, FeederState.FEEDING, unless=['is_DISCONNECTED', 'is_EMPTY'], after='start_feeding')
-        self.machine.add_transition('stop', FeederState.FEEDING, FeederState.IDLE, unless='is_DISCONNECTED', after='finish_feeding')
-        self.machine.add_transition('empty', FeederState.IDLE, FeederState.EMPTY, unless='is_DISCONNECTED')
-        self.machine.add_transition('disconnect', '*', FeederState.DISCONNECTED)
-        self.machine.add_transition('reconnect', FeederState.DISCONNECTED, FeederState.IDLE, after='empty_reconnection')
-        self.machine.add_transition('feed', FeederState.EMPTY, FeederState.EMPTY, after='feeding_empty')
+        self.machine = Machine(model=self, states=FeederState, initial=FeederState.VAZIO)
+        self.machine.add_transition('refill', FeederState.VAZIO, FeederState.LIGADO, before='refilled')
+        self.machine.add_transition('feed', FeederState.LIGADO, FeederState.ALIMENTANDO, unless=['is_DESCONECTADO', 'is_VAZIO'], after='start_feeding')
+        self.machine.add_transition('stop', FeederState.ALIMENTANDO, FeederState.LIGADO, unless='is_DESCONECTADO', after='finish_feeding')
+        self.machine.add_transition('empty', FeederState.LIGADO, FeederState.VAZIO, unless='is_DESCONECTADO')
+        self.machine.add_transition('disconnect', '*', FeederState.DESCONECTADO)
+        self.machine.add_transition('reconnect', FeederState.DESCONECTADO, FeederState.LIGADO, after='empty_reconnection')
+        self.machine.add_transition('feed', FeederState.VAZIO, FeederState.VAZIO, after='feeding_empty')
 
 
 # teste
