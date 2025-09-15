@@ -12,12 +12,14 @@ while True:
     f"2. Mostrar dispositivo\n"
     f"3. Executar comando em dispositivo\n"
     f"4. Alterar atributo de dispositivo\n"
-    # f"TODO 5. Executar rotina\n"
+    f"5. Salvar configuracao\n"
+    f"6. Adicionar dispositivo\n"
+    f"7. Remover dispositivo\n"
+    f"8. Sair\n")
+
+    # f"TODO 5. Executar rotina\n" #Nao consegui terminar
     # f"TODO 6. Gerar relatorio\n"
-    f"7. Salvar configuracao\n"
-    f"8. Adicionar dispositivo\n"
-    f"9. Remover dispositivo\n"
-    f"10. Sair\n")
+
     escolha = input(f"Escolha uma opcao:")
     escolha = escolha.strip()
 
@@ -49,23 +51,23 @@ while True:
         ...
     elif escolha == "6":
         ...
-    elif escolha == "7":
+    elif escolha == "5":
 
         casa.salvar_configuracao('data/casa.json')
 
-    elif escolha == "8":
+    elif escolha == "6":
 
         tipo_selecionado = selecao_dispositivo()
         nome_selecionado = nome_dispositivo()
         adicionar = {'type': tipo_selecionado, 'name': nome_selecionado}
         casa.add_device(adicionar, nome_selecionado)
 
-    elif escolha == "9":
+    elif escolha == "7":
 
         escolha = sel_disponiveis(casa.lista())
         casa.remove_device(escolha)
 
-    elif escolha == "10":
+    elif escolha == "8":
 
         casa.salvar_configuracao('data/casa.json')
         print("Ate logo!")
