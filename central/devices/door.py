@@ -75,7 +75,7 @@ class Door(Device):
         self.failed_lock = 0
         self.failed_open = 0
         self.failed_unlock = 0
-        self.machine = Machine(model=self, states=DoorState, initial=DoorState.FECHADA)
+        self.machine = Machine(model=self, states=DoorState, initial=DoorState.FECHADA, after_state_change="notificar")
 
         self.machine.add_transition('open', DoorState.FECHADA, DoorState.ABERTA, unless=['is_TRANCADA', 'is_DESCONECTADA'])
         self.machine.add_transition('close', DoorState.ABERTA, DoorState.FECHADA, unless='is_DESCONECTADA')

@@ -81,7 +81,7 @@ class Lamp(Device):
             "colour": self._colour,
             "brightness": self._brightness
         }
-        self.machine = Machine(model=self, states=LampState, initial=LampState.DESLIGADO)
+        self.machine = Machine(model=self, states=LampState, initial=LampState.DESLIGADO, after_state_change="notificar")
         self.machine.add_transition('on', LampState.DESLIGADO, LampState.LIGADO, unless='is_DESCONECTADO')
         self.machine.add_transition('on', LampState.LIGADO, '=')
         self.machine.add_transition('off', LampState.LIGADO, LampState.DESLIGADO, unless='is_DESCONECTADO')

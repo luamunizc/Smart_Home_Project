@@ -1,7 +1,7 @@
 from threading import Timer
 from enum import Enum, auto
 from transitions import Machine
-from devices.devices import Device, console, logging
+from devices.devices import Device, console
 from datetime import datetime
 
 
@@ -15,7 +15,7 @@ class AlarmState(Enum):
 class Alarm(Device):
 
     def _send_notification(self, message: str):
-        print(f"{datetime.now()} NOTIFICAÇÃO: {message}")
+        print(f"{datetime.today()} NOTIFICAÇÃO: {message}")
 
     def on_enter_ACTIVATED(self):
         print(f"Alarme '{self.name}' esta ativado")
@@ -84,10 +84,11 @@ class Alarm(Device):
     def already_connected(self):
         print(f"O alarme '{self.name}' ja esta conectado!")
 
+
     def __init__(self, device_name: str):
         super().__init__(device_name=device_name, device_type="alarm")
         self.name = device_name
-        self.machine = Machine(model=self, states=AlarmState, initial=AlarmState.DEACTIVATED)
+        self.machine = Machine(model=self, states=AlarmState, initial=AlarmState.DEACTIVATED, after_state_change="notificar")
 
         self.machine.add_transition('activate', AlarmState.DEACTIVATED, AlarmState.ACTIVATED, unless='is_DISCONNECTED')
         self.machine.add_transition('activate', [AlarmState.RINGING, AlarmState.ALERT, AlarmState.ACTIVATED, AlarmState.DISCONNECTED], '=', after='activate_fail')
@@ -109,13 +110,17 @@ class Alarm(Device):
 
 if __name__ == "__main__":
     s = Alarm('Principal')
+    # log = Log()
+    # rel = Report()
+    # s.add_observer(log)
+    # s.add_observer(rel)
     s.activate()
     s.stop()
-    # s.activate()
+    s.activate()
     # s.reconnect()
     # s.disconnection()
     # s.disconnection()
-    # s.stop()
-    # s.reconnect()
+    s.stop()
+    s.reconnect()
     print(s)
     print(s.__repr__())

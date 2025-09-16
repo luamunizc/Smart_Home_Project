@@ -3,13 +3,13 @@
         "new_tomada": {
             "name": "new_tomada",
             "type": "tomada",
-            "potencia_w": 33,
+            "potencia_w": 25,
             "state": 1
         },
         "new_alarm": {
             "name": "new_alarm",
             "type": "alarm",
-            "state": 2
+            "state": 1
         },
         "new_tomada_1": {
             "name": "new_tomada_1",
@@ -20,25 +20,25 @@
         "new_porta": {
             "name": "new_porta",
             "type": "porta",
-            "state": 2
+            "state": 3
         },
         "ota": {
             "name": "ota",
             "type": "porta",
-            "state": 2
+            "state": 1
         },
         "sala": {
             "name": "sala",
             "type": "lamp",
-            "colour": "FRIA",
-            "brilho": 15,
+            "colour": "NEUTRA",
+            "brilho": 65,
             "state": 1
         },
         "malelo": {
             "name": "malelo",
             "type": "feeder",
             "state": 2,
-            "level": 83.81
+            "level": 74.89000000000001
         }
     },
     "rotinas": {}

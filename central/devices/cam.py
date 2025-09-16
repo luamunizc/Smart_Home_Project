@@ -50,7 +50,7 @@ class Cam(Device):
 
     def __init__(self, device_name: str):
         super().__init__(device_name=device_name, device_type='cam')
-        self.machine = Machine(model=self, states=CamState, initial=CamState.DEACTIVATED)
+        self.machine = Machine(model=self, states=CamState, initial=CamState.DEACTIVATED, after_state_change="notificar")
 
         self.machine.add_transition('deactivate', '*', CamState.DEACTIVATED, unless='is_DISCONNECTED')
         self.machine.add_transition('activate', CamState.DEACTIVATED, CamState.IDLE, unless='is_DISCONNECTED')

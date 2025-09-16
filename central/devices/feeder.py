@@ -56,7 +56,7 @@ class Feeder(Device):
     def __init__(self, device_name: str):
         super().__init__(device_name=device_name, device_type="feeder")
         self.level = 0
-        self.machine = Machine(model=self, states=FeederState, initial=FeederState.VAZIO)
+        self.machine = Machine(model=self, states=FeederState, initial=FeederState.VAZIO, after_state_change="notificar")
         self.machine.add_transition('refill', [FeederState.VAZIO, FeederState.LIGADO], FeederState.LIGADO, before='refilled')
         self.machine.add_transition('refill', [FeederState.ALIMENTANDO, FeederState.DESCONECTADO], '=')
         self.machine.add_transition('feed', FeederState.LIGADO, FeederState.ALIMENTANDO, unless=['is_DESCONECTADO', 'is_VAZIO'], after='start_feeding')

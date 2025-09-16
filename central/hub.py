@@ -7,6 +7,7 @@ from devices.switch import Switch, SwitchState
 from errors import *
 from threading import Lock
 import json
+from observers import Log, Report
 
 
 class SmartHomeHub:
@@ -30,6 +31,8 @@ class SmartHomeHub:
         self.devices = dict()
         self.rotinas = dict()
         self._observers = []
+        self.observer_logs = Log()
+        self.observer_relatorios = Report()
         self._initialized = True
 
     def attach(self, observer):
@@ -42,7 +45,7 @@ class SmartHomeHub:
     def notify(self, event: str, dados: dict):
         print(f"[EVENTO] {event}: {dados}")
         for observer in self._observers:
-            observer.update(event, dados)
+            observer.notificar()
 
     def add_device(self, device={}, device_name=''):
         """

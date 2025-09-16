@@ -64,7 +64,7 @@ class Switch(Device):
         self.consumo_wh = 0.0
         self._last_on_timestamp = None
         self.before_disconnection = SwitchState.DESLIGADO
-        self.machine = Machine(model=self, states=SwitchState, initial=SwitchState.DESLIGADO)
+        self.machine = Machine(model=self, states=SwitchState, initial=SwitchState.DESLIGADO, after_state_change="notificar")
         self.machine.add_transition('on', SwitchState.DESLIGADO, SwitchState.LIGADO, unless='is_DESCONECTADO', after='_start_consumption_tracking')
         self.machine.add_transition('on', [SwitchState.LIGADO, SwitchState.DESCONECTADO], '=')
         self.machine.add_transition('off', SwitchState.LIGADO, SwitchState.DESLIGADO, unless='is_DESCONECTADO', before='_calculate_consumption')
