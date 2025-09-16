@@ -3,7 +3,7 @@
         "new_tomada": {
             "name": "new_tomada",
             "type": "tomada",
-            "potencia_w": 25,
+            "potencia_w": 55,
             "state": 0
         },
         "new_tomada_1": {
