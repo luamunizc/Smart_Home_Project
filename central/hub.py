@@ -114,27 +114,38 @@ class SmartHomeHub:
 
 
     def remove_device(self, device_name):
+        """
+        Função que irá remover dispositivos selecionados. Irá receber o nome do dispositivo, que é a chave dele no dicionário.
+        """
         print(f"Realmente quer excluir o dispositivo {device_name}?"
               f"s = sim     | qualquer outra selecao cancela a operacao")
         sel = input().lower().strip()
         if sel == 's':
+            excluir = self.devices[device_name]
+            excluir.notificar(f"O Dispositivo {excluir.name} sera apagado!")
             self.devices.pop(device_name)
         else:
             print(f"Operacao de exclusao do dispositivo {device_name} cancelada")
 
 
     def print_list_all_devices(self):
+
+        """
+        Função que irá mostrar todos os dispositivos disponíveis atualmente no sistema
+
+        """
+
+        indice = 0
         for i in self.devices.values():
-            print(i.__str__())
+            print(f"{indice}. {i.__str__()}")
+            indice += 1
 
-
-    def get_specific_device(self, device_name):
-        if device_name in self.devices.keys():
-            return self.devices.get(device_name)
-        else:
-            return f"Nenhum dispositivo com o nome {device_name} encontrado"
 
     def salvar_configuracao(self, caminho_arquivo: str):
+
+        """
+        Função que salva todos os dispositivos e suas configurações no arquivo json do sistema
+        """
 
         print(f"Salvando configuracao em '{caminho_arquivo}'...")
 
@@ -154,6 +165,9 @@ class SmartHomeHub:
             print(f"ERRO: Nao foi possivel salvar a configuracao em '{caminho_arquivo}': {e}")
 
     def comeca(self):
+        """
+        Função que lê o arquivo json e retomac ompletamente o sistema salvo
+        """
         try:
             with open("./data/casa.json", 'r') as file:
                 tudo = json.load(file)
@@ -166,6 +180,9 @@ class SmartHomeHub:
 
 
     def lista(self):
+        """
+        Função auxiliar que transforma o dicionário de dispositivos em uma lista, já que em alguns casos é interessante usar só os dispositivos
+        """
 
         lista = list(self.devices.values())
         for ind in range(len(lista)):
@@ -174,6 +191,9 @@ class SmartHomeHub:
 
 
     def usando_alarm(self, nome, uso):
+        """
+        Função para manipulação dos dispositivos do tipo alarme
+        """
 
         while True:
             print(f"Opcoes do alarme {nome}:\n"
@@ -198,6 +218,9 @@ class SmartHomeHub:
                 break
 
     def usando_cam(self, nome, uso):
+        """
+            Função para manipulação dos dispositivos do tipo câmera
+        """
 
         while True:
             print(f"Opcoes de camera {nome}:\n"
@@ -231,6 +254,9 @@ class SmartHomeHub:
                 break
 
     def usando_porta(self, nome, uso):
+        """
+            Função para manipulação dos dispositivos do tipo porta
+        """
 
         while True:
             print(f"Opcoes de porta {nome}:\n"
@@ -258,6 +284,9 @@ class SmartHomeHub:
                 break
 
     def usando_feeder(self, nome, uso):
+        """
+            Função para manipulação dos dispositivos do tipo alimentador de pet
+        """
 
         while True:
             print(f"Opcoes de alimentador {nome}:\n"
@@ -279,6 +308,9 @@ class SmartHomeHub:
                 break
 
     def usando_lamp(self, nome, uso):
+        """
+            Função para manipulação dos dispositivos do tipo lâmpada
+        """
 
         while True:
             print(f"Opcoes de lampada {nome}:\n"
@@ -300,6 +332,9 @@ class SmartHomeHub:
                 break
 
     def usando_switch(self, nome, uso):
+        """
+            Função para manipulação dos dispositivos do tipo tomada elétrica
+        """
 
         while True:
             print(f"Opcoes de tomada {nome}:\n"
@@ -322,6 +357,9 @@ class SmartHomeHub:
 
 
     def usar(self, nome):
+        """
+            Função auxiliar que vai chamar a função de manipulação dos dispositivos
+        """
         if nome in self.devices.keys():
             usando = self.devices.get(nome)
             if usando.type == 'alarm':
@@ -338,6 +376,9 @@ class SmartHomeHub:
                 self.usando_switch(nome, usando)
 
     def atributos(self, nome):
+        """
+            Função para manipular atributos de dispositivos específicos
+        """
 
         usando = self.devices.get(nome)
         if usando.type in ('alarm', 'cam', 'porta', 'feeder'):
@@ -398,6 +439,9 @@ def nome_dispositivo():
     return nome.lower().strip()
 
 def selecao_dispositivo():
+    """
+    Função utilizada na hora de adicionar dispositivos para mostrar quais são os tipos de dispositivos disponíveis no sistema
+    """
     while True:
         print("Dispositivos disponiveis:\n"
               "1. Alarme de seguranca\n"
@@ -423,6 +467,10 @@ def selecao_dispositivo():
             print("Erro ao selecionar dispositivo")
 
 def sel_disponiveis(lista):
+
+    """
+    Função para selecionar um dispositivo numa lista de dispositivos disponíveis para uso no sistema
+    """
     while True:
         try:
             selecao = int(input("Selecione o numero de dispositivo:"))

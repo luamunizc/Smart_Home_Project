@@ -16,8 +16,12 @@ class Device:
     def __str__(self):
         return f"Dispositivo {self.name} do tipo {self.type} no estado {self.state.name}"
 
-    def notificar(self):
-        new_log = str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) + ' , ' + self.__str__() + '\n'
+    def notificar(self, message=''):
+        if message == '':
+            new_log = str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) + ' , ' + self.__str__() + '\n'
+        else:
+            new_log = str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) + ' , ' + message + '\n'
+        print("\n", new_log, "\n")
         with open(r'data/log.csv', 'a', newline='') as csvfile:
             csvfile.write(new_log)
             for observer in self._observers:

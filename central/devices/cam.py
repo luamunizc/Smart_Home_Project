@@ -14,22 +14,22 @@ class CamState(Enum):
 class Cam(Device):
 
     def on_enter_DEACTIVATED(self):
-        print(f'Câmera {self.name} desativada')
+        self.notificar(f'Câmera {self.name} desativada')
 
     def on_enter_IDLE(self):
-        print(f'Câmera {self.name} em modo espera')
+        self.notificar(f'Câmera {self.name} em modo espera')
 
     def on_enter_STREAMING(self):
-        print(f"Câmera {self.name} está em modo de apenas transmissão")
+        self.notificar(f"Câmera {self.name} está em modo de apenas transmissão")
 
     def on_enter_RECORDING(self):
-        print(f"Câmera {self.name} está em modo de apenas gravação")
+        self.notificar(f"Câmera {self.name} está em modo de apenas gravação")
 
     def on_enter_REC_AND_STREAM(self):
-        print(f"Câmera {self.name} está em modo de transmissão e gravação")
+        self.notificar(f"Câmera {self.name} está em modo de transmissão e gravação")
 
     def on_enter_DISCONNECTED(self):
-        print(f"Câmera {self.name} desconectada")
+        self.notificar(f"Câmera {self.name} desconectada")
 
     def is_DISCONNECTED(self):
         return self.state == CamState.DISCONNECTED
@@ -39,7 +39,7 @@ class Cam(Device):
 
     def restore_state(self):
         target_state = self.before_disconnection
-        print(f"Câmera {self.name} reconectada")
+        self.notificar(f"Câmera {self.name} reconectada")
         if target_state == CamState.RECORDING:
             self.start_recording()
         elif target_state == CamState.STREAMING:
@@ -76,4 +76,4 @@ class Cam(Device):
 
 if __name__ == '__main__':
     new = Cam('camera1')
-    print(new)
+    new.notificar()

@@ -4,12 +4,7 @@
             "name": "new_tomada",
             "type": "tomada",
             "potencia_w": 25,
-            "state": 1
-        },
-        "new_alarm": {
-            "name": "new_alarm",
-            "type": "alarm",
-            "state": 1
+            "state": 0
         },
         "new_tomada_1": {
             "name": "new_tomada_1",
@@ -30,8 +25,8 @@
         "sala": {
             "name": "sala",
             "type": "lamp",
-            "colour": "NEUTRA",
-            "brilho": 65,
+            "colour": "QUENTE",
+            "brilho": 45,
             "state": 1
         },
         "malelo": {

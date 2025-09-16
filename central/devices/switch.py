@@ -14,20 +14,20 @@ class SwitchState(Enum):
 class Switch(Device):
 
     def on_enter_LIGADO(self):
-        console.print(f"Tomada {self.name} ligada", style="bold green")
+        self.notificar(f"Tomada {self.name} ligada")
 
     def on_enter_DESLIGADO(self):
-        console.print(f"Tomada {self.name} desligada", style="bold bright_red")
+        self.notificar(f"Tomada {self.name} desligada")
 
     def on_enter_DESCONECTADO(self):
-        console.print(f"Tomada {self.name} desconectada", style="bold color(166)")
+        self.notificar(f"Tomada {self.name} desconectada")
 
     def saved_state(self):
         self.before_disconnection = self.state
 
     def restore_state(self):
         target_state = self.before_disconnection
-        console.print(f"Tomada {self.name} reconectada", style="bold color(122)")
+        self.notificar(f"Tomada {self.name} reconectada")
         if target_state == SwitchState.LIGADO:
             self.on()
 

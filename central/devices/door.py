@@ -14,48 +14,48 @@ class Door(Device):
 
         self.failed_close += 1
         if self.state == DoorState.FECHADA:
-            console.print(f"AVISO: A porta '{self.name}' já está fechada!", style='bright_yellow')
+            self.notificar(f"AVISO: A porta '{self.name}' já está fechada!")
         elif self.state == DoorState.TRANCADA:
-            console.print(f"AVISO: Não é possível fechar a porta '{self.name}' pois ela já está trancada!", style='bright_yellow')
+            self.notificar(f"AVISO: Não é possível fechar a porta '{self.name}' pois ela já está trancada!")
 
     def _failed_lock(self):
 
         self.failed_lock += 1
         if self.state == DoorState.ABERTA:
-            console.print(f"AVISO: Não é possível trancar a porta '{self.name}' pois ela está aberta!", style='bright_red')
+            self.notificar(f"AVISO: Não é possível trancar a porta '{self.name}' pois ela está aberta!")
         elif self.state == DoorState.TRANCADA:
-            console.print(f"AVISO: A porta {self.name} já está trancada!", style='bright_yellow')
-        print(f"Total de tentativas de trancamento inválidas: {self.failed_lock}")
+            self.notificar(f"AVISO: A porta {self.name} já está trancada!")
+        self.notificar(f"Total de tentativas de trancamento inválidas: {self.failed_lock}")
 
     def _failed_unlock(self):
 
         self.failed_unlock += 1
         if self.state == DoorState.ABERTA:
-            console.print(f"AVISO: Não é possível destrancar a porta '{self.name}' pois ela está aberta!", style='bright_red')
+            self.notificar(f"AVISO: Não é possível destrancar a porta '{self.name}' pois ela está aberta!")
         elif self.state == DoorState.FECHADA:
-            console.print(f"AVISO: Não é possível destrancar a porta '{self.name}' pois ela já está destrancada!", style='bright_yellow')
-        print(f"Total de tentativas de destrancamento inválidas: {self.failed_unlock}")
+            self.notificar(f"AVISO: Não é possível destrancar a porta '{self.name}' pois ela já está destrancada!")
+        self.notificar(f"Total de tentativas de destrancamento inválidas: {self.failed_unlock}")
 
     def _failed_open(self):
 
         self.failed_open += 1
         if self.state == DoorState.TRANCADA:
-            console.print(f"AVISO: Não é possível abrir a porta '{self.name}' pois ela está trancada!", style='bright_red')
+            self.notificar(f"AVISO: Não é possível abrir a porta '{self.name}' pois ela está trancada!")
         elif self.state == DoorState.ABERTA:
-            console.print(f"AVISO: A porta '{self.name}' já está aberta!", style='bright_yellow')
-        print(f"Total de tentativas de abertura inválidas: {self.failed_open}")
+            self.notificar(f"AVISO: A porta '{self.name}' já está aberta!")
+        self.notificar(f"Total de tentativas de abertura inválidas: {self.failed_open}")
 
     def on_enter_FECHADA(self):
-        print(f'Porta {self.name} fechada')
+        self.notificar(f'Porta {self.name} fechada')
 
     def on_enter_ABERTA(self):
-        print(f"Porta {self.name} aberta")
+        self.notificar(f"Porta {self.name} aberta")
 
     def on_enter_TRANCADA(self):
-        print(f'Porta {self.name} trancada')
+        self.notificar(f'Porta {self.name} trancada')
 
     def on_enter_DESCONECTADA(self):
-        print(f'Porta {self.name} desconectada')
+        self.notificar(f'Porta {self.name} desconectada')
 
     def is_ABERTA(self):
         return self.state == DoorState.ABERTA
@@ -64,10 +64,10 @@ class Door(Device):
         return self.state == DoorState.TRANCADA
 
     def reconnection(self):
-        print(f'Porta {self.name} reconectada')
+        self.notificar(f'Porta {self.name} reconectada')
 
     def reconnection_fail(self):
-        console.print(f"A porta {self.name} já está conectada", style='bright_magenta')
+        self.notificar(f"A porta {self.name} já está conectada")
 
     def __init__(self, device_name: str):
         super().__init__(device_name=device_name, device_type="porta")
@@ -97,7 +97,7 @@ class Door(Device):
 
 if __name__ == '__main__':
     d = Door("porta")
-    print(d)
+    d.notificar()
     d.open()
     d.unlock()
     d.close()
