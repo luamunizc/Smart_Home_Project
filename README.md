@@ -60,4 +60,6 @@ A interface de linha de comando oferece as seguintes opções para interagir com
 
 4.  **Interação:** Após a execução, um menu interativo será exibido no terminal. Basta digitar o número da opção desejada e pressionar Enter para interagir com o sistema.
 
-![Interface de Linha de Comando] C:\Users\lmmc3\Documents\smart_home\data\CLI principal.png
+
+![Interface de Linha de Comando](data/CLI%20principal.png)
+
