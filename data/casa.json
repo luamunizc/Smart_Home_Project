@@ -22,18 +22,11 @@
             "type": "porta",
             "state": 1
         },
-        "sala": {
-            "name": "sala",
-            "type": "lamp",
-            "colour": "QUENTE",
-            "brilho": 45,
-            "state": 1
-        },
         "malelo": {
             "name": "malelo",
             "type": "feeder",
-            "state": 2,
-            "level": 74.89000000000001
+            "state": 1,
+            "level": 0.8400000000000141
         }
     },
     "rotinas": {}

@@ -36,7 +36,7 @@ class Feeder(Device):
     def start_feeding(self):
         drop = 4 + (randrange(80, 120) / 100) # Adicionando um pouco de variação ao processo
         self.level -= drop
-        self.notificar(f"Nível de ração atual: {self.level:.1f}%")
+        self.notificar(f"Nível de ração atual: {self.level:.2f}%")
         timer = Timer(1.0, self.stop)
         timer.start()
 
@@ -44,7 +44,7 @@ class Feeder(Device):
         if self.is_VAZIO():
             self.empty()
         elif self.level < 20:
-            self.notificar(f"AVISO: Alimentador '{self.name}' está com pouca ração ({self.level:.1f}%)!")
+            self.notificar(f"AVISO: Alimentador '{self.name}' está com pouca ração ({self.level:.2f}%)!")
 
     def feeding_empty(self):
         self.notificar(f"O alimentador '{self.name}' está vazio! Reabasteca antes de usar.")
@@ -77,7 +77,7 @@ class Feeder(Device):
         if self.state == FeederState.VAZIO:
             return f"Alimentador de racao {self.name} vazio"
         else:
-            return f"Alimentador de racao {self.name} no estado {self.state.name} e nivel de racao {self.level}"
+            return f"Alimentador de racao {self.name} no estado {self.state.name} e nivel de racao {self.level:.2f}%"
 
 
 # teste
